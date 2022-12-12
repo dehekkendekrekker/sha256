@@ -7,7 +7,7 @@ def ror (data, bits):
 def rshift(data, bits):
         return data >> bits
 
-def sigma_0(data):
+def s0(data):
     ror_1 = ror(data,7 )
     ror_2 = ror(data,18)
     xored = ror_1 ^ ror_2
@@ -24,4 +24,4 @@ def sigma_0(data):
     print("result:  {0:032b} ".format(result))
 
     
-sigma_0(int(sys.argv[1], 2))
+s0(int(sys.argv[1], 2))

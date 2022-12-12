@@ -7,21 +7,21 @@ def ror (data, bits):
 def rshift(data, bits):
         return data >> bits
 
-def s1(data):
-    ror_1 = ror(data,17 )
-    ror_2 = ror(data,19)
-    xored = ror_1 ^ ror_2
-    shifted = rshift(data, 10)
-    xored_2 = xored ^ shifted
+def sigma_1(data):
+    ror_1 = ror(data,6)
+    ror_2 = ror(data,11)
+    ror_3 = ror(data, 25)
+    xored1 = ror_1 ^ ror_2
+    xored_2 = xored1 ^ ror_3
 
-    result = ror(data, 17) ^ ror(data,19) ^ rshift(data, 10)
+    result = ror(data, 6) ^ ror(data,11) ^ ror(data, 25)
 
     print("ror_1:   {0:032b} ".format(ror_1))
     print("ror_2:   {0:032b} ".format(ror_2))
-    print("xored1:  {0:032b} ".format(xored))
-    print("shifted: {0:032b} ".format(shifted))
+    print("ror_3:   {0:032b} ".format(ror_3))
+    print("xored1:  {0:032b} ".format(xored1))
     print("xored2:  {0:032b} ".format(xored_2))
     print("result:  {0:032b} ".format(result))
 
     
-s1(int(sys.argv[1], 2))
+sigma_1(int(sys.argv[1], 2))
