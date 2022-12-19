@@ -6,7 +6,7 @@ module MOD_MEM32K(
 	input WE
 );
 
-reg [0:7] buffer [0:14];
+reg [0:7] buffer [0:32767];
 reg drive_output;
 
 initial begin
