@@ -1,5 +1,6 @@
 `include "./src/verilog/MOD_MEM128K.v"
-`include "./src/verilog/MOD_EEPROM8K.v"
+`include "./src/verilog/MOD_EEPROM32K.v"
+`include "./src/verilog/7400/MOD_74x393.v"
 
 module MOD_MEMMGR(
     input CLK,
@@ -7,146 +8,67 @@ module MOD_MEMMGR(
     output reg INIT_COMPLETE
 );
 
-MOD_EEPROM8K rom (rom_address, rom_output, rom_enable, 1'b0, 1'b1);
+MOD_EEPROM32K rom (rom_address, rom_output, rom_enable, 1'b0, 1'b1); // Output enabled, write disabled;
 MOD_MEM128K ram(ram_address, ram_io, ram_enable, 1'b0, ram_write);
+MOD_74x393 ctr(ctr_clk,ctr_clr, ctr_output[3],ctr_clr, ctr_output[3:0], ctr_output[7:4]);
 
+// CTR related
+reg ctr_clr;
+reg ctr_clk;
+reg [7:0] ctr_output;
 
 // ROM related
 reg rom_enable;
-reg [0:1] buffer_counter;
-reg [0:31] copy_buffer;
-reg [0:7] rom_output;
-reg [0:12] rom_address;
+reg [31:0] rom_output;
+reg [12:0] rom_address;
 
 // RAM related
 reg ram_enable;
 reg ram_write;
-reg [0:14] ram_address;
-wire [0:31] ram_io;
-reg [0:31]  ram_io_driver;
+reg [14:0] ram_address;
+wire [31:0] ram_io;
+reg [31:0]  ram_io_driver;
 
-assign ram_io = ram_io_driver;
+assign ram_io = rom_output;
 
-
-
-// FSM's
-reg addr_state;
-reg [0:2] copy_state;
-reg [0:1] buf_copy_state;
-
-reg inc_rom_addr;
-
-// States for buf_copy_state
-localparam READ_BYTE_1 = 0;
-localparam READ_BYTE_2 = 1;
-localparam READ_BYTE_3 = 2;
-localparam READ_BYTE_4 = 3;
-
-
-// States for copy_state
-localparam READ_ROM = 0;
-localparam INC_ROM_ADDR = 1;
-localparam INIT_DONE = 2;
-localparam WRITE_WORD = 3;
-localparam INC_RAM_ADDR = 4;
-localparam CHECK_DONE = 5;
-
-// States for addr increase
-localparam READ = 0;
-localparam INC = 1;
-
+// Tie counter output to ROM/RAM address
+assign rom_address = {5'b00000, ctr_output[7:0]};
+assign ram_address = {7'b0000000, ctr_output[7:0]};
 
 
 initial begin
-    copy_state = READ_ROM;
-    buf_copy_state = READ_BYTE_1;
-    rom_enable = 0;
-    buffer_counter = 0;
-    INIT_COMPLETE = 0;
-    rom_address = 0;
-    
-
-    // RAM
-    ram_address = 0;
-    ram_enable = 1;
-    ram_write = 1;
+    ctr_clr = 1; // Start in memory clearing mode
+    ctr_clk = 0; // Setup counter clock for trigger, it does things when low.
+    INIT_COMPLETE = 0; // INIT_COMPLETE is low by default
+    ram_write = 0; // PUT RAM in write mode by default
+    rom_enable = 0; // Pull rom_enable low, this makes sure the databus contains data by default
+    ram_enable = 1; // Disable writing
 end
 
 
 
 
-// Handling of address state machine
-always @(posedge CLK) begin
-    if (INIT) begin
-        rom_enable <= ~rom_enable;
-        ram_enable <= ~ram_enable;
-    end
-    
-end
-
-always @(posedge CLK) begin
-    if (INIT) begin
-        // $display("State: %d:%d Address: %d Value %h", copy_state, buf_copy_state, rom_address, copy_buffer);
-        case (copy_state)
-        READ_ROM:
-        begin
-            case (buf_copy_state)
-            READ_BYTE_1: begin
-                copy_buffer[0:7] <= rom_output;
-                buf_copy_state <= READ_BYTE_2;
-            end
-            READ_BYTE_2: begin
-                copy_buffer[8:15] <= rom_output;
-                buf_copy_state <= READ_BYTE_3;
-            end
-            READ_BYTE_3: begin
-                copy_buffer[16:23] <= rom_output;
-                buf_copy_state <= READ_BYTE_4;
-            end
-            READ_BYTE_4: begin
-                copy_buffer[24:31] <= rom_output;
-                buf_copy_state <= READ_BYTE_1;
-                copy_state <= WRITE_WORD;
-            end
-
-            endcase
-
-            // Increase the address
-            rom_address <= rom_address + 1;
-        end
-        WRITE_WORD: begin
-            ram_write <= 0; // Write pulse
-            ram_io_driver <= copy_buffer;
-            copy_state <= INC_RAM_ADDR;
-        end
-        INC_RAM_ADDR: begin
-            $display("RAM addr: %d: value %h", ram_address, {ram.bank_1.buffer[ram_address],ram.bank_2.buffer[ram_address],ram.bank_3.buffer[ram_address],ram.bank_4.buffer[ram_address]});
-            ram_write <= 1; // Cancel write pulse
-            ram_address <= ram_address + 1;
-            copy_state <= CHECK_DONE;
-        end
-        CHECK_DONE: begin
-            if (ram_address == 72) begin
-                copy_state <= INIT_DONE;
-            end else
-                copy_state <= READ_ROM;
-        end
-
-
-        INIT_DONE:
-        begin
-            INIT_COMPLETE <= 1;
-        end
-        endcase
-
-        
-
+// Handles positive clock triggers
+always @(posedge CLK) begin 
+    if (INIT && ~INIT_COMPLETE) begin
+        ctr_clr <= 0 ;
+        ctr_clk <= ~ctr_clk; // Toggle counter clock
     end
 end
 
+// On positive edges a write should occur
+always @(posedge ctr_clk) begin
+    $display("CTR: %d: ROM ADDR: %b   ROM VALUE: %h", ctr_output, rom_address, rom_output);
+    ram_enable <= 0;
+end
 
+always @(negedge ctr_clk) begin
+    ram_enable <= 1;
+    $display("CTR: %d: RAM ADDR: %b RAM VALUE: %h", ctr_output, ram_address, {ram.bank_1.buffer[ram_address],ram.bank_2.buffer[ram_address],ram.bank_3.buffer[ram_address],ram.bank_4.buffer[ram_address]});
 
-
-
+    if (ctr_output == 71) begin
+        INIT_COMPLETE <= 1;
+    end
+end
 
 endmodule

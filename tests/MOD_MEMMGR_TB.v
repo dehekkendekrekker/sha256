@@ -18,21 +18,17 @@ initial begin
     $dumpfile("./build/MOD_MEMMGR_TB.vcd");
     $dumpvars(0, MOD_MEMMGR_TB);
     $timeformat(-6, 0, " us", 20);
+    CLK = 0;
 
 
-    #50000
+    #20000
     $finish();
 
 end
 
 
 // Setup clock signal
-initial begin
-    forever begin
-        CLK = 0;
-        #period CLK = ~CLK;
-    end
-end
+always #period CLK = ~CLK;
 
 
 // Execute
