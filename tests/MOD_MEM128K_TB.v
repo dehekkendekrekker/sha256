@@ -1,5 +1,3 @@
-`include "./src/verilog/MOD_MEM32K.v"
-
 module MOD_MEM128K_TB;
 `INIT
 
