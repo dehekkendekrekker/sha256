@@ -1,3 +1,4 @@
+(* keep *)
 module MOD_MEM32K(
 	input [0:14] A,
     inout [0:7] IO,

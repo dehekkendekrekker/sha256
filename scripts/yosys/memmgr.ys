@@ -1,0 +1,9 @@
+read_verilog ./src/verilog/MOD_MEMMGR.v
+blackbox MOD_MEM32K
+proc
+hierarchy -top MOD_MEMMGR
+memory
+#extract -map ./lib/7400.v
+opt
+write_json ./build/memmgr.json
+show MOD_MEMMGR

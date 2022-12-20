@@ -1,3 +1,5 @@
+import sys
+
 H = [
     "6a09e667",
     "bb67ae85",
@@ -25,22 +27,25 @@ payload = ""
 
 idx = 0
 
-def parse_constants(constants : list):
+def parse_constants(constants : list,bank):
     global payload
     global idx
     global template
 
+    i = 2 * (bank - 1)
+
     for word in constants:
-        for i in range(0, 8, 2):
-            payload += template.replace("IDX", str(idx)).replace("BYTE",word[i:i+2])
-            idx += 1
-            if idx == 32:
-                payload += "\n"
+        payload += template.replace("IDX", str(idx)).replace("BYTE",word[i:i+2])
+        idx += 1
 
     
+bank = int(sys.argv[1])
+if bank not in [1,2,3,4]:
+    print("Invalid bank specified")
+    quit()
 
-
-parse_constants(H)
-parse_constants(K)
+parse_constants(H, bank)
+payload += "\n"
+parse_constants(K, bank)
 
 print(payload)

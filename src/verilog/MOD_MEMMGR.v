@@ -34,7 +34,7 @@ reg addr_state;
 reg [0:2] copy_state;
 reg [0:1] buf_copy_state;
 
-bit inc_rom_addr;
+reg inc_rom_addr;
 
 // States for buf_copy_state
 localparam READ_BYTE_1 = 0;
@@ -73,23 +73,16 @@ initial begin
 end
 
 
+
+
 // Handling of address state machine
 always @(posedge CLK) begin
     if (INIT) begin
-        rom_enable <= 1;
-        ram_enable <= 1;
+        rom_enable <= ~rom_enable;
+        ram_enable <= ~ram_enable;
     end
     
 end
-
-always @(negedge CLK) begin
-    if (INIT) begin
-        rom_enable <= 0;
-        ram_enable <= 0;
-    end
-end
-
-
 
 always @(posedge CLK) begin
     if (INIT) begin

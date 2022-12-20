@@ -1,0 +1,634 @@
+# Compile with verilog
+iverilog -g2012 ./src/verilog/MOD_MEMMGR.v -o ./build/MOD_MEMMGR.vpp
+# Synthesize with yosys
+yosys -s ./scripts/yosys/memmgr.ys 
+
+ /----------------------------------------------------------------------------\
+ |                                                                            |
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |                                                                            |
+ |  Copyright (C) 2012 - 2020  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |                                                                            |
+ |  Permission to use, copy, modify, and/or distribute this software for any  |
+ |  purpose with or without fee is hereby granted, provided that the above    |
+ |  copyright notice and this permission notice appear in all copies.         |
+ |                                                                            |
+ |  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES  |
+ |  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF          |
+ |  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR   |
+ |  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    |
+ |  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN     |
+ |  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF   |
+ |  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.            |
+ |                                                                            |
+ \----------------------------------------------------------------------------/
+
+ Yosys 0.22+33 (git sha1 8abaf8240, gcc 11.2.0-19ubuntu1 -fPIC -Os)
+
+
+-- Executing script file `./scripts/yosys/memmgr.ys' --
+
+1. Executing Verilog-2005 frontend: ./src/verilog/MOD_MEMMGR.v
+Parsing Verilog input from `./src/verilog/MOD_MEMMGR.v' to AST representation.
+Warning: Yosys has only limited support for tri-state logic at the moment. (./src/verilog/MOD_MEM32K.v:16)
+Generating RTLIL representation for module `\MOD_MEM32K'.
+Warning: Replacing memory \buffer with list of registers. See ./src/verilog/MOD_MEM32K.v:26
+Generating RTLIL representation for module `\MOD_MEM128K'.
+Generating RTLIL representation for module `\MOD_EEPROM8K'.
+Generating RTLIL representation for module `\MOD_MEMMGR'.
+./src/verilog/MOD_MEMMGR.v:0: Warning: System task `$display' outside initial block is unsupported.
+Successfully finished Verilog frontend.
+
+2. Executing PROC pass (convert processes to netlists).
+
+2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 2 switch rules as full_case in process $proc$./src/verilog/MOD_MEMMGR.v:94$893 in module MOD_MEMMGR.
+Removed a total of 0 dead cases.
+
+2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 297 assignments to connections.
+
+2.4. Executing PROC_INIT pass (extract init attributes).
+Found init rule in `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:0$897'.
+  Set init value: \INIT_COMPLETE = 1'0
+  Set init value: \rom_enable = 1'0
+  Set init value: \rom_address = 13'0000000000000
+  Set init value: \ram_enable = 1'1
+  Set init value: \ram_write = 1'1
+  Set init value: \ram_address = 15'000000000000000
+  Set init value: \copy_state = 3'000
+  Set init value: \buf_copy_state = 2'00
+
+2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~7 debug messages>
+
+2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:0$897'.
+Creating decoders for process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:94$893'.
+     1/11: $0\copy_buffer[31:0] [15:8]
+     2/11: $0\copy_buffer[31:0] [7:0]
+     3/11: $0\copy_buffer[31:0] [23:16]
+     4/11: $0\copy_buffer[31:0] [31:24]
+     5/11: $0\copy_state[2:0]
+     6/11: $0\ram_io_driver[31:0]
+     7/11: $0\ram_address[14:0]
+     8/11: $0\ram_write[0:0]
+     9/11: $0\rom_address[12:0]
+    10/11: $0\buf_copy_state[1:0]
+    11/11: $0\INIT_COMPLETE[0:0]
+Creating decoders for process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:85$892'.
+     1/2: $1\ram_enable[0:0]
+     2/2: $1\rom_enable[0:0]
+Creating decoders for process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:77$891'.
+     1/2: $0\ram_enable[0:0]
+     2/2: $0\rom_enable[0:0]
+Creating decoders for process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+Creating decoders for process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:305$308'.
+     1/1: $0\IO[7:0]
+
+2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\MOD_MEMMGR.\buffer_counter' from process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:0$897'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:13$20_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:14$21_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:15$22_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:16$23_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:17$24_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:18$25_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:19$26_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:20$27_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:21$28_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:22$29_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:23$30_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:24$31_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:25$32_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:26$33_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:27$34_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:28$35_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:29$36_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:30$37_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:31$38_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:32$39_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:33$40_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:34$41_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:35$42_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:36$43_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:37$44_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:38$45_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:39$46_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:40$47_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:41$48_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:42$49_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:43$50_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:44$51_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:47$52_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:48$53_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:49$54_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:50$55_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:51$56_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:52$57_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:53$58_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:54$59_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:55$60_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:56$61_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:57$62_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:58$63_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:59$64_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:60$65_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:61$66_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:62$67_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:63$68_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:64$69_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:65$70_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:66$71_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:67$72_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:68$73_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:69$74_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:70$75_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:71$76_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:72$77_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:73$78_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:74$79_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:75$80_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:76$81_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:77$82_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:78$83_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:79$84_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:80$85_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:81$86_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:82$87_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:83$88_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:84$89_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:85$90_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:86$91_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:87$92_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:88$93_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:89$94_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:90$95_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:91$96_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:92$97_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:93$98_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:94$99_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:95$100_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:96$101_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:97$102_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:98$103_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:99$104_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:100$105_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:101$106_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:102$107_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:103$108_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:104$109_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:105$110_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:106$111_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:107$112_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:108$113_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:109$114_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:110$115_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:111$116_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:112$117_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:113$118_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:114$119_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:115$120_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:116$121_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:117$122_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:118$123_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:119$124_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:120$125_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:121$126_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:122$127_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:123$128_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:124$129_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:125$130_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:126$131_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:127$132_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:128$133_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:129$134_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:130$135_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:131$136_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:132$137_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:133$138_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:134$139_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:135$140_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:136$141_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:137$142_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:138$143_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:139$144_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:140$145_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:141$146_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:142$147_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:143$148_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:144$149_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:145$150_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:146$151_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:147$152_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:148$153_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:149$154_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:150$155_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:151$156_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:152$157_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:153$158_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:154$159_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:155$160_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:156$161_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:157$162_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:158$163_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:159$164_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:160$165_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:161$166_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:162$167_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:163$168_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:164$169_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:165$170_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:166$171_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:167$172_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:168$173_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:169$174_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:170$175_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:171$176_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:172$177_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:173$178_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:174$179_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:175$180_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:176$181_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:177$182_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:178$183_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:179$184_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:180$185_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:181$186_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:182$187_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:183$188_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:184$189_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:185$190_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:186$191_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:187$192_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:188$193_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:189$194_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:190$195_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:191$196_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:192$197_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:193$198_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:194$199_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:195$200_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:196$201_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:197$202_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:198$203_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:199$204_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:200$205_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:201$206_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:202$207_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:203$208_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:204$209_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:205$210_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:206$211_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:207$212_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:208$213_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:209$214_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:210$215_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:211$216_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:212$217_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:213$218_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:214$219_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:215$220_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:216$221_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:217$222_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:218$223_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:219$224_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:220$225_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:221$226_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:222$227_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:223$228_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:224$229_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:225$230_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:226$231_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:227$232_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:228$233_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:229$234_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:230$235_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:231$236_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:232$237_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:233$238_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:234$239_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:235$240_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:236$241_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:237$242_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:238$243_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:239$244_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:240$245_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:241$246_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:242$247_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:243$248_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:244$249_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:245$250_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:246$251_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:247$252_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:248$253_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:249$254_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:250$255_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:251$256_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:252$257_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:253$258_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:254$259_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:255$260_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:256$261_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:257$262_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:258$263_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:259$264_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:260$265_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:261$266_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:262$267_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:263$268_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:264$269_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:265$270_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:266$271_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:267$272_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:268$273_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:269$274_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:270$275_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:271$276_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:272$277_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:273$278_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:274$279_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:275$280_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:276$281_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:277$282_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:278$283_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:279$284_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:280$285_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:281$286_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:282$287_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:283$288_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:284$289_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:285$290_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:286$291_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:287$292_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:288$293_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:289$294_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:290$295_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:291$296_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:292$297_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:293$298_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:294$299_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:295$300_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:296$301_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:297$302_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:298$303_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:299$304_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:300$305_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:301$306_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+No latch inferred for signal `\MOD_EEPROM8K.$memwr$\buffer$./src/verilog/MOD_EEPROM8K.v:302$307_EN' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+Latch inferred for signal `\MOD_EEPROM8K.\IO' from process `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:305$308': $auto$proc_dlatch.cc:427:proc_dlatch$1022
+
+2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\MOD_MEMMGR.\INIT_COMPLETE' using process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:94$893'.
+  created $dff cell `$procdff$1023' with positive edge clock.
+Creating register for signal `\MOD_MEMMGR.\copy_buffer' using process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:94$893'.
+  created $dff cell `$procdff$1024' with positive edge clock.
+Creating register for signal `\MOD_MEMMGR.\rom_address' using process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:94$893'.
+  created $dff cell `$procdff$1025' with positive edge clock.
+Creating register for signal `\MOD_MEMMGR.\ram_write' using process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:94$893'.
+  created $dff cell `$procdff$1026' with positive edge clock.
+Creating register for signal `\MOD_MEMMGR.\ram_address' using process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:94$893'.
+  created $dff cell `$procdff$1027' with positive edge clock.
+Creating register for signal `\MOD_MEMMGR.\ram_io_driver' using process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:94$893'.
+  created $dff cell `$procdff$1028' with positive edge clock.
+Creating register for signal `\MOD_MEMMGR.\copy_state' using process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:94$893'.
+  created $dff cell `$procdff$1029' with positive edge clock.
+Creating register for signal `\MOD_MEMMGR.\buf_copy_state' using process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:94$893'.
+  created $dff cell `$procdff$1030' with positive edge clock.
+Creating register for signal `\MOD_MEMMGR.\rom_enable' using process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:85$892'.
+  created $dff cell `$procdff$1031' with negative edge clock.
+Creating register for signal `\MOD_MEMMGR.\ram_enable' using process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:85$892'.
+  created $dff cell `$procdff$1032' with negative edge clock.
+Creating register for signal `\MOD_MEMMGR.\rom_enable' using process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:77$891'.
+  created $dff cell `$procdff$1033' with positive edge clock.
+Creating register for signal `\MOD_MEMMGR.\ram_enable' using process `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:77$891'.
+  created $dff cell `$procdff$1034' with positive edge clock.
+
+2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:0$897'.
+Found and cleaned up 4 empty switches in `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:94$893'.
+Removing empty process `MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:94$893'.
+Found and cleaned up 1 empty switch in `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:85$892'.
+Removing empty process `MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:85$892'.
+Found and cleaned up 1 empty switch in `\MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:77$891'.
+Removing empty process `MOD_MEMMGR.$proc$./src/verilog/MOD_MEMMGR.v:77$891'.
+Removing empty process `MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:0$602'.
+Found and cleaned up 1 empty switch in `\MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:305$308'.
+Removing empty process `MOD_EEPROM8K.$proc$./src/verilog/MOD_EEPROM8K.v:305$308'.
+Cleaned up 7 empty switches.
+
+2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module MOD_MEMMGR.
+<suppressed ~9 debug messages>
+Optimizing module MOD_EEPROM8K.
+<suppressed ~7 debug messages>
+Optimizing module MOD_MEM128K.
+
+3. Executing HIERARCHY pass (managing design hierarchy).
+
+3.1. Analyzing design hierarchy..
+Top module:  \MOD_MEMMGR
+Used module:     \MOD_MEM128K
+Used module:     \MOD_EEPROM8K
+
+3.2. Analyzing design hierarchy..
+Top module:  \MOD_MEMMGR
+Used module:     \MOD_MEM128K
+Used module:     \MOD_EEPROM8K
+Removed 0 unused modules.
+Mapping positional arguments of cell MOD_MEMMGR.ram (MOD_MEM128K).
+Mapping positional arguments of cell MOD_MEMMGR.rom (MOD_EEPROM8K).
+Mapping positional arguments of cell MOD_MEM128K.bank_4 (MOD_MEM32K).
+Mapping positional arguments of cell MOD_MEM128K.bank_3 (MOD_MEM32K).
+Mapping positional arguments of cell MOD_MEM128K.bank_2 (MOD_MEM32K).
+Mapping positional arguments of cell MOD_MEM128K.bank_1 (MOD_MEM32K).
+
+4. Executing OPT pass (performing simple optimizations).
+
+4.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module MOD_MEMMGR.
+Optimizing module MOD_EEPROM8K.
+Optimizing module MOD_MEM128K.
+
+4.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\MOD_MEMMGR'.
+<suppressed ~45 debug messages>
+Finding identical cells in module `\MOD_EEPROM8K'.
+Finding identical cells in module `\MOD_MEM128K'.
+Removed a total of 15 cells.
+
+4.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \MOD_MEMMGR..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Running muxtree optimizer on module \MOD_EEPROM8K..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \MOD_MEM128K..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+<suppressed ~15 debug messages>
+
+4.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \MOD_MEMMGR.
+  Optimizing cells in module \MOD_EEPROM8K.
+  Optimizing cells in module \MOD_MEM128K.
+Performed a total of 0 changes.
+
+4.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\MOD_MEMMGR'.
+Finding identical cells in module `\MOD_EEPROM8K'.
+Finding identical cells in module `\MOD_MEM128K'.
+Removed a total of 0 cells.
+
+4.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $procdff$1023 ($dff) from module MOD_MEMMGR (D = 1'1, Q = \INIT_COMPLETE).
+Adding EN signal on $procdff$1024 ($dff) from module MOD_MEMMGR (D = \rom_output, Q = \copy_buffer [31:24]).
+Adding EN signal on $procdff$1024 ($dff) from module MOD_MEMMGR (D = \rom_output, Q = \copy_buffer [23:16]).
+Adding EN signal on $procdff$1024 ($dff) from module MOD_MEMMGR (D = \rom_output, Q = \copy_buffer [7:0]).
+Adding EN signal on $procdff$1024 ($dff) from module MOD_MEMMGR (D = \rom_output, Q = \copy_buffer [15:8]).
+Adding EN signal on $procdff$1025 ($dff) from module MOD_MEMMGR (D = $add$./src/verilog/MOD_MEMMGR.v:122$894_Y [12:0], Q = \rom_address).
+Adding EN signal on $procdff$1026 ($dff) from module MOD_MEMMGR (D = $procmux$972_Y, Q = \ram_write).
+Adding EN signal on $procdff$1027 ($dff) from module MOD_MEMMGR (D = $add$./src/verilog/MOD_MEMMGR.v:132$895_Y [14:0], Q = \ram_address).
+Adding EN signal on $procdff$1028 ($dff) from module MOD_MEMMGR (D = \copy_buffer, Q = \ram_io_driver).
+Adding EN signal on $procdff$1029 ($dff) from module MOD_MEMMGR (D = $procmux$948_Y, Q = \copy_state).
+Adding EN signal on $procdff$1030 ($dff) from module MOD_MEMMGR (D = $procmux$989_Y, Q = \buf_copy_state).
+Adding EN signal on $procdff$1031 ($dff) from module MOD_MEMMGR (D = 1'0, Q = \rom_enable).
+Adding EN signal on $procdff$1032 ($dff) from module MOD_MEMMGR (D = 1'0, Q = \ram_enable).
+Adding EN signal on $procdff$1033 ($dff) from module MOD_MEMMGR (D = 1'1, Q = \rom_enable).
+Adding EN signal on $procdff$1034 ($dff) from module MOD_MEMMGR (D = 1'1, Q = \ram_enable).
+Setting constant 1-bit at position 0 on $auto$ff.cc:266:slice$1077 ($dffe) from module MOD_MEMMGR.
+Setting constant 0-bit at position 0 on $auto$ff.cc:266:slice$1075 ($dffe) from module MOD_MEMMGR.
+Setting constant 0-bit at position 0 on $auto$ff.cc:266:slice$1074 ($dffe) from module MOD_MEMMGR.
+
+4.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \MOD_MEMMGR..
+Finding unused cells or wires in module \MOD_EEPROM8K..
+Finding unused cells or wires in module \MOD_MEM128K..
+Removed 49 unused cells and 680 unused wires.
+<suppressed ~57 debug messages>
+
+4.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module MOD_EEPROM8K.
+Optimizing module MOD_MEM128K.
+Optimizing module MOD_MEMMGR.
+<suppressed ~1 debug messages>
+
+4.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+4.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \MOD_EEPROM8K..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \MOD_MEM128K..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \MOD_MEMMGR..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~2 debug messages>
+
+4.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \MOD_EEPROM8K.
+  Optimizing cells in module \MOD_MEM128K.
+  Optimizing cells in module \MOD_MEMMGR.
+Performed a total of 0 changes.
+
+4.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\MOD_EEPROM8K'.
+Finding identical cells in module `\MOD_MEM128K'.
+Finding identical cells in module `\MOD_MEMMGR'.
+Removed a total of 0 cells.
+
+4.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+4.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \MOD_EEPROM8K..
+Finding unused cells or wires in module \MOD_MEM128K..
+Finding unused cells or wires in module \MOD_MEMMGR..
+Removed 0 unused cells and 2 unused wires.
+<suppressed ~2 debug messages>
+
+4.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module MOD_EEPROM8K.
+Optimizing module MOD_MEM128K.
+Optimizing module MOD_MEMMGR.
+
+4.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+4.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \MOD_EEPROM8K..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \MOD_MEM128K..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Running muxtree optimizer on module \MOD_MEMMGR..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~2 debug messages>
+
+4.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \MOD_EEPROM8K.
+  Optimizing cells in module \MOD_MEM128K.
+  Optimizing cells in module \MOD_MEMMGR.
+Performed a total of 0 changes.
+
+4.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\MOD_EEPROM8K'.
+Finding identical cells in module `\MOD_MEM128K'.
+Finding identical cells in module `\MOD_MEMMGR'.
+Removed a total of 0 cells.
+
+4.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+4.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \MOD_EEPROM8K..
+Finding unused cells or wires in module \MOD_MEM128K..
+Finding unused cells or wires in module \MOD_MEMMGR..
+
+4.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module MOD_EEPROM8K.
+Optimizing module MOD_MEM128K.
+Optimizing module MOD_MEMMGR.
+
+4.23. Finished OPT passes. (There is nothing left to do.)
+
+5. Executing JSON backend.
+
+6. Generating Graphviz representation of design.
+Writing dot description to `/home/hw/.yosys_show.dot'.
+Dumping module MOD_MEMMGR to page 1.
+Warning: WIDTHLABEL $add$./src/verilog/MOD_MEMMGR.v:132$895_Y [14:0] 15
+Warning: WIDTHLABEL { $procmux$949_CMP $procmux$950_CMP $procmux$951_CMP $procmux$906_CMP } 4
+Warning: WIDTHLABEL { $procmux$914_CMP $procmux$906_CMP } 2
+Warning: WIDTHLABEL { $procmux$999_CMP \INIT } 2
+Warning: WIDTHLABEL { $procmux$950_CMP \INIT } 2
+Warning: WIDTHLABEL { $auto$opt_dff.cc:194:make_patterns_logic$1067 $auto$opt_dff.cc:194:make_patterns_logic$1065 \INIT } 3
+Warning: WIDTHLABEL { $procmux$906_CMP \INIT } 2
+Warning: WIDTHLABEL { $procmux$952_Y 6'100101 $procmux$946_Y } 12
+Warning: WIDTHLABEL { $procmux$906_CMP $procmux$951_CMP $procmux$950_CMP $procmux$949_CMP } 4
+Warning: WIDTHLABEL { $procmux$939_CMP $procmux$926_CMP $procmux$904_CMP $procmux$914_CMP } 4
+Exec: { test -f '/home/hw/.yosys_show.dot.pid' && fuser -s '/home/hw/.yosys_show.dot.pid' 2> /dev/null; } || ( echo $$ >&3; exec xdot '/home/hw/.yosys_show.dot'; ) 3> '/home/hw/.yosys_show.dot.pid' &
+
+Warnings: 13 unique messages, 13 total
+End of script. Logfile hash: 98d36967f9, CPU: user 2.47s system 0.24s, MEM: 468.27 MB peak
+Yosys 0.22+33 (git sha1 8abaf8240, gcc 11.2.0-19ubuntu1 -fPIC -Os)
+Time spent: 95% 2x read_verilog (2 sec), 1% 1x blackbox (0 sec), ...
+# Convert to netlist
+# cd ./build	&& mknl --input ./memmgr.json --output ./memmgr

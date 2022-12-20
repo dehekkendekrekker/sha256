@@ -1,12 +1,16 @@
 module MOD_EEPROM8K_TB;
 `INIT
 
-MOD_EEPROM8K mut(
-    A,IO,CE,OE,WE
-);
+MOD_EEPROM8K_1 mut1(A,IO_1,CE,OE,WE);
+MOD_EEPROM8K_2 mut2(A,IO_2,CE,OE,WE);
+MOD_EEPROM8K_3 mut3(A,IO_3,CE,OE,WE);
+MOD_EEPROM8K_4 mut4(A,IO_4,CE,OE,WE);
 
 reg [0:12] A;
-wire [0:7] IO;
+wire [0:7] IO_1;
+wire [0:7] IO_2;
+wire [0:7] IO_3;
+wire [0:7] IO_4;
 reg CE;
 reg OE;
 reg WE;
@@ -29,17 +33,44 @@ initial begin
     #period
     CE = 0; // We active the chip, this should trigger a reas
     #period
-    if (IO !== 8'h6a) begin
-        `FAILED("RC: IO should have taken the first value of the H constant");
+    if (IO_1 !== 8'h6a) begin
+        `FAILED("RC: IO_1 should have taken the first value of the H constant");
+    end
+
+    if (IO_2 !== 8'h09) begin
+        `FAILED("RC: IO_2 should have taken the first value of the H constant");
+    end
+
+    if (IO_3 !== 8'he6) begin
+        `FAILED("RC: IO_3 should have taken the first value of the H constant");
+    end
+
+    if (IO_4 !== 8'h67) begin
+        `FAILED("RC: IO_4 should have taken the first value of the H constant");
     end
 
     CE = 1;
-    A  = 32;
+    A  = 8;
     #period
     CE = 0;
     # period
-    if (IO !== 8'h42) begin
-        `FAILED("RC: IO should have taken the first value of the K constant");
+    if (IO_1 !== 8'h42) begin
+        `FAILED("RC: IO_1 should have taken the first value of the K constant");
+    end
+
+    # period
+    if (IO_2 !== 8'h8a) begin
+        `FAILED("RC: IO_2 should have taken the first value of the K constant");
+    end
+
+    # period
+    if (IO_3 !== 8'h2f) begin
+        `FAILED("RC: IO_3 should have taken the first value of the K constant");
+    end
+
+    # period
+    if (IO_4 !== 8'h98) begin
+        `FAILED("RC: IO_4 should have taken the first value of the K constant");
     end
 
 
