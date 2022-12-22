@@ -2,9 +2,6 @@
 mkdir -p ./build/
 
 function test () {
-	# Compile with verilog
-	# iverilog -g2012 ./src/verilog/$1.v -o ./build/$1.vpp
-
 	# Run unit test
 	iverilog -g2012 ./src/verilog/$1.v ./lib/macros.v ./tests/"$1"_TB.v -o ./build/$1.vpp
 	./build/$1.vpp

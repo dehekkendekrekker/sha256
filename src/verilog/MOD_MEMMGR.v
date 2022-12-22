@@ -32,8 +32,8 @@ reg [31:0]  ram_io_driver;
 assign ram_io = rom_output;
 
 // Tie counter output to ROM/RAM address
-// assign rom_address = {5'b00000, ctr_output[7:0]};
-// assign ram_address = {7'b0000000, ctr_output[7:0]};
+assign rom_address = {5'b00000, ctr_output[7:0]};
+assign ram_address = {7'b0000000, ctr_output[7:0]};
 
 
 initial begin
@@ -58,13 +58,13 @@ end
 
 // On positive edges a write should occur
 always @(posedge ctr_clk) begin
-    $display("CTR: %d: ROM ADDR: %b   ROM VALUE: %h", ctr_output, rom_address, rom_output);
+    // $display("CTR: %d: ROM ADDR: %b   ROM VALUE: %h", ctr_output, rom_address, rom_output);
     ram_enable <= 0;
 end
 
 always @(negedge ctr_clk) begin
     ram_enable <= 1;
-    $display("CTR: %d: RAM ADDR: %b RAM VALUE: %h", ctr_output, ram_address, {ram.bank_1.buffer[ram_address],ram.bank_2.buffer[ram_address],ram.bank_3.buffer[ram_address],ram.bank_4.buffer[ram_address]});
+    // $display("CTR: %d: RAM ADDR: %b RAM VALUE: %h", ctr_output, ram_address, {ram.bank_1.buffer[ram_address],ram.bank_2.buffer[ram_address],ram.bank_3.buffer[ram_address],ram.bank_4.buffer[ram_address]});
 
     if (ctr_output[7] == 1) begin
         INIT_COMPLETE <= 1;
