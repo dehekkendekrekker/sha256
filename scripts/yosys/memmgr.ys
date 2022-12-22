@@ -1,9 +1,0 @@
-read_verilog ./src/verilog/MOD_MEMMGR.v
-blackbox MOD_MEM32K
-proc
-hierarchy -top MOD_MEMMGR
-extract -map ./lib/7400.v
-#techmap -map ./lib/techmap.v
-opt
-write_json ./build/memmgr.json
-show MOD_MEMMGR
