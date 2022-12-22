@@ -1,0 +1,7 @@
+read_verilog ./src/verilog/MOD_MAJORITY.v
+proc
+hierarchy -top MOD_MAJORITY
+techmap -map ./techmaps/gates.v
+opt
+write_json ./build/MOD_MAJORITY.json
+show -width -colors 1 MOD_MAJORITY

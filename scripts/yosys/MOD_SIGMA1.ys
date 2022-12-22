@@ -1,0 +1,7 @@
+read_verilog ./src/verilog/MOD_SIGMA1.v
+proc
+hierarchy -top MOD_SIGMA1
+techmap -map ./techmaps/gates.v
+opt
+write_json ./build/MOD_SIGMA1.json
+show -width -colors 1 MOD_SIGMA1

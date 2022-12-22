@@ -9,6 +9,12 @@ from typing import final
 from loguru import logger # pip install loguru
 
 mapping = {
+    "MOD_74x04_6" : {"extract_order": 1},
+    "MOD_74x04_5" : {"extract_order": 2},
+    "MOD_74x04_4" : {"extract_order": 3},
+    "MOD_74x04_3" : {"extract_order": 4},
+    "MOD_74x04_2" : {"extract_order": 5},
+    "MOD_74x04_1" : {"extract_order": 6},
     "MOD_74x08_4" : {"extract_order": 1},
     "MOD_74x08_3" : {"extract_order": 2},
     "MOD_74x08_2" : {"extract_order": 3},

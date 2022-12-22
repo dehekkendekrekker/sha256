@@ -1,0 +1,7 @@
+read_verilog ./src/verilog/MOD_CHOICE.v
+proc
+hierarchy -top MOD_CHOICE
+techmap -map ./techmaps/gates.v
+opt
+write_json ./build/MOD_CHOICE.json
+show -width -colors 1 MOD_CHOICE
