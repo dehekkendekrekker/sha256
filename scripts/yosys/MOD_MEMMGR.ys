@@ -2,8 +2,13 @@ read_verilog ./src/verilog/MOD_MEMMGR.v
 blackbox MOD_MEM32K
 proc
 hierarchy -top MOD_MEMMGR
-#extract -map ./lib/7400.v
-techmap -map ./techmaps/gates.v
 opt
+#techmap -map ./techmaps/gates.v
+techmap -map ./techmaps/flipflops.v
+extract -map ./lib/7400.v
+techmap -map ./techmaps/extracted.v
+opt
+
+#opt
 write_json ./build/MOD_MEMMGR.json
 show -colors 1 -width MOD_MEMMGR

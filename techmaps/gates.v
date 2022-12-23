@@ -87,7 +87,7 @@ genvar i;
 if (A_WIDTH == 32) begin
     generate 
         for (i=0; i < 32; i = i + 4) begin
-            NOT4 not_i(.A(A[i:i+3]), .Y(Y[i:i+3]));
+            NOT not_i(.A(A[i:i+3]), .Y(Y[i:i+3]));
         end
     endgenerate
 end
@@ -95,3 +95,4 @@ end
 
 
 endmodule
+
