@@ -1,4 +1,5 @@
 (* keep *)
+(* blackbox *)
 module MOD_EEPROM8K_1(
 	input [0:12] A,
     output reg [0:7] IO,
@@ -96,6 +97,7 @@ end
 endmodule
 
 (* keep *)
+(* blackbox *)
 module MOD_EEPROM8K_2(
 	input [0:12] A,
     output reg [0:7] IO,
@@ -193,6 +195,7 @@ end
 endmodule
 
 (* keep *)
+(* blackbox *)
 module MOD_EEPROM8K_3(
 	input [0:12] A,
     output reg [0:7] IO,
@@ -290,6 +293,7 @@ end
 endmodule
 
 (* keep *)
+(* blackbox *)
 module MOD_EEPROM8K_4(
 	input [0:12] A,
     output reg [0:7] IO,

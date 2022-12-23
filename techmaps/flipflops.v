@@ -25,18 +25,18 @@ if (!CLK_POLARITY && !EN_POLARITY)
 endmodule
 
 
+// D-type FlipFlop with enable, Positive clock, negative enable
+module DFFE_PN (D, C, E, Q);
 
-// module DFFE_PN (D, C, E, Q);
+parameter \CLK_POLARITY = 0;
+parameter \EN_POLARITY = 0;
+parameter \WIDTH = 0;
 
-// parameter \CLK_POLARITY = 0;
-// parameter \EN_POLARITY = 0;
-// parameter \WIDTH = 1;
-
-// output Q;
-// input E;
-// input C;
-// input D;
+output Q;
+input E;
+input C;
+input D;
 
 
-// \74AC377_8x1DFFE _TECHMAP_REPLACE_(.D(D), .CP(C), .CE(E), .Q(Q));
-// endmodule
+DFFE_PN_8BIT _TECHMAP_REPLACE_(.D(D), .CP(C), .CE(E), .Q(Q));
+endmodule

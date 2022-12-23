@@ -6,7 +6,7 @@ function synth () {
 	yosys -s ./scripts/yosys/$1.ys 
 
 	# Convert to netlist
-	# cd ./build	&& mknl --input ./$@.json --output ./$@
+	# cd ./build	&& mknl --input ./$@.json --output ./$@ --chipset ../lib/chipset.json
 }
 
 if [ -n "$1" ]

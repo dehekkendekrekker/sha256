@@ -4,11 +4,18 @@ proc
 hierarchy -top MOD_MEMMGR
 opt
 #techmap -map ./techmaps/gates.v
-techmap -map ./techmaps/flipflops.v
-extract -map ./lib/7400.v
-techmap -map ./techmaps/extracted.v
-opt
 
-#opt
+# Map all flipflops and convert them to types that are included in the chipset
+techmap -recursive -map ./techmaps/flipflops.v
+
+# Extract remaining logic gates from 7400.v
+extract -map ./lib/7400.v
+
+# Convert the extracted logic gates to a generic module name
+techmap -map ./techmaps/extracted.v
+
+# Map the used memory banks to a generic name. 
+techmap -map ./techmaps/memories.v
+opt
 write_json ./build/MOD_MEMMGR.json
 show -colors 1 -width MOD_MEMMGR

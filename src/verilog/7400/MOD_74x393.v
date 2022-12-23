@@ -1,4 +1,5 @@
 // 74x393 Dual 4-bit ripple counter
+(* blackbox *)
 module MOD_74x393 (
     input CLK1,
     input CLR1,
