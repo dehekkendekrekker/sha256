@@ -5,7 +5,8 @@
 module MOD_MEMMGR(
     input CLK,
     input COPY_ROM,
-    output reg COPY_ROM_COMPLETE
+    output reg COPY_ROM_COMPLETE,
+    inout [31:0] DATA
 );
 
 MOD_EEPROM32K rom (rom_address, rom_output, rom_enable, 1'b0, 1'b1); // Output enabled, write disabled;
@@ -46,7 +47,6 @@ assign ram_address = {7'b0000000, ctr_output[7:0]};
 
 initial begin
     ctr_clr = 1; // Start in memory clearing mode
-    //ctr_clk = 0; // Setup counter clock for trigger, it does things when low.
     COPY_ROM_COMPLETE = 0; // COPY_ROM_COMPLETE is low by default
     ram_write = 0; // PUT RAM in write mode by default
     rom_enable = 0; // Pull rom_enable low, this makes sure the databus contains data by default
@@ -60,33 +60,31 @@ always @(negedge CLK) begin
     if (COPY_ROM) begin
         ctr_en <= 1;  // We enable the ROM copy counter
         ctr_clr <= 0 ; // We tell the counter to stop resetting its state
-    end
+    end 
 end
-
-
-
-
-// Handles positive clock triggers
-// always @(posedge CLK) begin 
-//     if (COPY_ROM & ~COPY_ROM_COMPLETE) begin
-        
-//         ctr_clk <= ~ctr_clk; // Toggle counter clock
-//     end
-// end
 
 // On positive edges a write should occur
 always @(posedge ctr_clk) begin
-    $display("CTR: %d: ROM ADDR: %b   ROM VALUE: %h", ctr_output, rom_address, rom_output);
+    // Debug info
+    //$display("CTR: %d: ROM ADDR: %b   ROM VALUE: %h", ctr_output, rom_address, rom_output);
     ram_enable <= 0;
+end
+
+// We determine when the ROM copy should end
+always @(negedge ctr_clk) begin
+    if (ctr_output == 71) begin
+        COPY_ROM_COMPLETE <= 1; // Let the parent module know we're done
+        ctr_en <= 0; // Disable copying
+        ctr_clr <= 1; // Reset the counter
+    end
 end
 
 always @(negedge ctr_clk) begin
     ram_enable <= 1;
-    $display("CTR: %d: RAM ADDR: %b RAM VALUE: %h", ctr_output, ram_address, {ram.bank_1.buffer[ram_address],ram.bank_2.buffer[ram_address],ram.bank_3.buffer[ram_address],ram.bank_4.buffer[ram_address]});
+    // Debug info
+    // $display("CTR: %d: RAM ADDR: %b RAM VALUE: %h", ctr_output, ram_address, {ram.bank_1.buffer[ram_address],ram.bank_2.buffer[ram_address],ram.bank_3.buffer[ram_address],ram.bank_4.buffer[ram_address]});
 
-    if (ctr_output[7] == 1) begin
-        COPY_ROM_COMPLETE <= 1;
-    end
+    
 end
 
 endmodule

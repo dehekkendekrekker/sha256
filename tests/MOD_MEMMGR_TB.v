@@ -2,14 +2,16 @@ module MOD_MEMMGR_TB;
 `INIT
 
 MOD_MEMMGR mut(
-    CLK,INIT,INIT_COMPLETE
+    CLK,COPY_ROM,COPY_ROM_COMPLETE, DATA
 );
 
 
 
 reg CLK;
-reg INIT; // When positive, the init sequence of the memory manager will run
-wire INIT_COMPLETE;
+reg COPY_ROM; // When positive, the init sequence of the memory manager will run
+wire COPY_ROM_COMPLETE;
+reg [31:0] DATA;
+
 
 localparam period = 20;  
 
@@ -112,11 +114,11 @@ always #period CLK = ~CLK;
 
 // Execute
 initial begin
-    INIT <= 1;
+    COPY_ROM <= 1;
 end
 
-always @(posedge INIT_COMPLETE) begin
-    INIT <= 0;
+always @(posedge COPY_ROM_COMPLETE) begin
+    COPY_ROM <= 0;
 
     // Check if memory has been copied correctly
     for (integer i = 0; i < 72; i=i+1) begin
