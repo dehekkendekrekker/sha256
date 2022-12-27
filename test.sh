@@ -3,8 +3,7 @@ mkdir -p ./build/
 
 function test () {
 	# Run unit test
-	iverilog -g2012 ./src/verilog/$1.v ./lib/macros.v ./tests/"$1"_TB.v -o ./build/$1.vpp
-	./build/$1.vpp
+	iverilog -g2012 ./src/verilog/$1.v ./lib/macros.v ./tests/"$1"_TB.v -o ./build/$1.vpp && ./build/$1.vpp
 }
 
 if [ -n "$1" ]

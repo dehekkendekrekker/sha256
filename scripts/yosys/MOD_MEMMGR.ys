@@ -1,4 +1,4 @@
-read_verilog ./src/verilog/MOD_MEMMGR.v
+read_verilog -nomeminit ./src/verilog/MOD_MEMMGR.v 
 blackbox MOD_MEM32K
 proc
 hierarchy -top MOD_MEMMGR
@@ -18,4 +18,4 @@ techmap -map ./techmaps/extracted.v
 techmap -map ./techmaps/memories.v
 opt
 write_json ./build/MOD_MEMMGR.json
-show -colors 1 -width MOD_EEPROM32K
+show -colors 1 -width MOD_MEMMGR
