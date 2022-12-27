@@ -12,8 +12,8 @@ module MOD_MEMMGR(
     inout [31:0] DATA
 );
 
-MOD_EEPROM32K rom (rom_address, rom_output, rom_enable, 1'b0, 1'b1); // Output enabled, write disabled;
-MOD_MEM128K ram(ram_address, ram_io, ram_clk, 1'b0, ram_write);
+MOD_EEPROM32K rom (rom_address, DATA, rom_enable, 1'b0, 1'b1); // Output enabled, write disabled;
+MOD_MEM128K ram({7'b0000000, ram_address}, DATA, ram_clk, 1'b0, ram_write);
 MOD_74x393 ctr(ctr_clk,ctr_clr, ctr_output[3],ctr_clr, ctr_output[3:0], ctr_output[7:4]);
 
 
@@ -33,30 +33,23 @@ assign cpy_addr = add_buf + ctr_output;
 
 // ROM related
 reg rom_enable;
-reg [31:0] rom_output;
 reg [12:0] rom_address;
 
 // RAM related
 reg ram_clk;
 reg ram_write;
-reg [14:0] ram_address;
-wire [31:0] ram_io;
-reg [31:0]  ram_io_driver;
-
-
-
+reg [7:0] ram_address;
 
 // Tie counter output to ROM/RAM address
 assign rom_address = {5'b00000, ctr_output};
 assign rom_enable = ~st_copying_rom; // ROM is enabled when copying, otherwise disabled
 
-assign ram_address = st_copying_rom ? {7'b0000000, cpy_addr} : {7'b0000000, ADDR};
+assign ram_address = st_copying_rom ? cpy_addr : ADDR;
 
 // When copying, the RAM data bus is tied to the ROM data bus, otherwise DATA
-assign ram_io = st_copying_rom ? rom_output : DATA;
 
 // RAM is write enabled when copying, otherwise it takes the port value
-assign ram_write = st_copying_rom ? 0 : WR; 
+assign ram_write = st_copying_rom ? 1'b0 : WR; 
 
 // The counter is in clear mode when not copying
 assign ctr_clr = ~st_copying_rom;
@@ -64,14 +57,10 @@ assign ctr_clr = ~st_copying_rom;
 
 assign ram_clk = ~ctr_clk;
 
-assign COPY_ROM_COMPLETE = ~st_copying_rom;
-
-reg test;
-
 initial begin
+    COPY_ROM_COMPLETE = 0;
     st_copying_rom = 0;
     add_buf = 0;
-    test = 1;
 end
 
 
@@ -82,11 +71,6 @@ end
 
 
 
-// *** DEBUG ***
-// On positive edges a write should occur
-// always @(posedge ctr_clk) begin
-//     //$display("CTR: %d: ROM ADDR: %b   ROM VALUE: %h", ctr_output, rom_address, rom_output);
-// end
 
 
 // We determine when the ROM copy should end
@@ -94,22 +78,21 @@ always @(negedge CLK) begin
     if (COPY_ROM == 1) begin
         st_copying_rom <= 1;  // We enable the ROM copy counter
     end
-
     if (ctr_output == 71) begin
         st_copying_rom <= 0; // Disable copying
+        COPY_ROM_COMPLETE <= 1;
     end
     if (cpy_addr == 7) begin
         add_buf <= 56;
     end
 end
 
-// On the falling edge of the clock, the st_copying_rom bit is pulled high. This ensures that on a rising edge of the CLK
-// when copying ROM, ROM is written to RAM, and on the falling edge, the address advances
-// always @(negedge CLK) begin
-//     if (COPY_ROM == 1) begin
-//         st_copying_rom <= 1;  // We enable the ROM copy counter
-//     end 
+// *** DEBUG ***
+// On positive edges a write should occur
+// always @(posedge ctr_clk) begin
+//     //$display("CTR: %d: ROM ADDR: %b   ROM VALUE: %h", ctr_output, rom_address, DATA);
 // end
+
 
 /// **** DEBUG *****
 // This block disables writing to RAM
