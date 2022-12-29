@@ -1,8 +1,10 @@
 module MOD_S0(
-    input [0:31] A,
-    output [0:31] Y
+    input [31:0] A,
+    output [31:0] Y
 );
 
-assign Y = {A[25:31], A[0:24]} ^ {A[14:31], A[0:13]} ^ {3'b000, A[0:28]};
+assign Y  = {A[6 :0], A[31:7]} ^
+             {A[17:0], A[31:18]} ^
+             {3'b000,   A[31:3]};
 
 endmodule

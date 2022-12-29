@@ -1,0 +1,23 @@
+read_verilog -sv ./src/verilog/MOD_W_MEM.v 
+proc
+hierarchy -top MOD_W_MEM
+opt
+#techmap -map ./techmaps/gates.v
+
+# Map all flipflops and convert them to types that are included in the chipset
+#techmap -recursive -map ./techmaps/flipflops.v
+
+# Extract remaining logic gates from 7400.v
+#extract -map ./lib/7400.v
+
+# Convert the extracted logic gates to a generic module name
+#techmap -map ./techmaps/extracted.v
+
+# Map the used memory banks to a generic name. 
+#techmap -map ./techmaps/memories.v
+#opt
+
+#memory_share
+#opt
+write_json ./build/MOD_W_MEM.json
+show -colors 1 -width MOD_W_MEM
