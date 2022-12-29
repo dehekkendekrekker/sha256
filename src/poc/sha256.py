@@ -149,7 +149,3 @@ input = sys.argv[1].encode("utf-8")
 
 hash = sha256.hash(input, len(input))
 print(hash)
-
-
-result = sha256.sigma_0(int('0b11111111111111110000000000000000',2))
-print("{0:032b} ".format(result))
