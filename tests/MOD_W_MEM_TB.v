@@ -1,7 +1,7 @@
 module MOD_W_MEM_TB;
 `INIT
 
-MOD_W_MEM mut(CLK, I, D_IN, D_OUT);
+MOD_W_MEM mut(I, D_IN, D_OUT);
 
 reg CLK, COMPLETE;
 reg [5:0] I;

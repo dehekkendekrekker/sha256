@@ -6,5 +6,6 @@ input = sys.argv[1].encode("utf-8")
 
 hasher.hash(input, len(input))
 
-for idx, val in enumerate(hasher.W):
-    print("expectation[%s] = 32'b%s;" %(idx, format(val, 'b').zfill(32)))
+
+for idx, val in enumerate(hasher.K):
+    print("K[%s] = 32'h%s;" %(idx, hex(val).replace("0x",'')))
