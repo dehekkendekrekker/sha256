@@ -4,11 +4,11 @@ module MOD_HK_MEM_TB;
 MOD_HK_MEM mut(
     CLK,
     COPY_ROM,
-    COPY_ROM_COMPLETE, 
     HK_SELECTOR,
     H_ADDR,
     K_ADDR,
-    HK
+    HK,
+    COPY_ROM_COMPLETE
 );
 
 

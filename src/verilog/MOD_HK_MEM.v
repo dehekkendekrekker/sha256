@@ -6,17 +6,17 @@
 // This module implements an abstraction of a 32 bits wide RAM module
 // This RAM module holds the initial H-values as well as K-constants
 // These values are stored in a ROM module, that are copied to the RAM when COPY_ROM is high.
-// When copying is done, COPY_ROM_COMPLETE is pulled high, indicating the module is ready for use.
+// When copying is done, RDY is pulled high, indicating the module is ready for use.
 // H and K value can be retrieved by applying 0 and 1 to HK_SELECTOR respectively.
 // By applying the correct address to H_ADDR and K_ADDR respectively, the requested value will be presented on RAM_DR when CLK is low.
 module MOD_HK_MEM(
     input CLK,
     input COPY_ROM,
-    output reg COPY_ROM_COMPLETE,
     input HK_SELECTOR,
     input [2:0] H_ADDR,
     input [5:0] K_ADDR,
-    output [31:0] RAM_DR
+    output [31:0] RAM_DR,
+    output reg RDY
 );
 
 MOD_EEPROM32K ROM(ROM_A, ROM_D, ROM_E, 1'b0, 1'b1); // Output enabled, write disabled;
@@ -44,8 +44,6 @@ assign hk_selected_addr = (HK_SELECTOR == HSEL) ? {12'b000000000000, H_ADDR} : {
 assign RAM_A = (st_copying_ROM) ? {7'b0000000, cpy_addr} : hk_selected_addr;
 
 
-
-
 // CTR related
 reg ctr_clr;
 reg ctr_clk;
@@ -66,17 +64,12 @@ reg [12:0] ROM_A;
 // RAM related
 reg RAM_clk;
 reg RAM_WE;
-reg [7:0] RAM_Aess;
 
 // Tie counter output to ROM/RAM address
 assign ROM_A = {5'b00000, ctr_output};
 assign ROM_E = ~st_copying_ROM; // ROM is enabled when copying, otherwise disabled
 
-// assign RAM_Aess = st_copying_ROM ? cpy_addr : ADDR;
-
-// When copying, the RAM data bus is tied to the ROM data bus, otherwise DATA
-
-// RAM is write enabled when copying, otherwise it takes the port value
+// RAM is write enabled when copying
 assign RAM_WE = ~st_copying_ROM;
 
 // The counter is in clear mode when not copying
@@ -85,7 +78,7 @@ assign ctr_clr = ~st_copying_ROM;
 assign RAM_clk = (st_copying_ROM) ? ~ctr_clk : CLK;
 
 initial begin
-    COPY_ROM_COMPLETE = 0;
+    RDY = 0;
     st_copying_ROM = 0;
     add_buf = 0;
 end
@@ -98,7 +91,7 @@ always @(negedge CLK) begin
     end
     if (ctr_output == 71) begin
         st_copying_ROM <= 0; // Disable copying
-        COPY_ROM_COMPLETE <= 1;
+        RDY <= 1;
     end
     if (cpy_addr == 7) begin
         add_buf <= 56;
