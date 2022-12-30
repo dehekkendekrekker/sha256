@@ -219,14 +219,14 @@ always @(posedge CLK) begin
     I = I + 1;
     if (I==63) begin
         $display("=== DONE ===");
-        if (a != E[0]) `FAILED_EXP(0, a, E[0]);
-        if (b != E[1]) `FAILED_EXP(0, b, E[1]);
-        if (c != E[2]) `FAILED_EXP(0, c, E[2]);
-        if (d != E[3]) `FAILED_EXP(0, d, E[3]);
-        if (e != E[4]) `FAILED_EXP(0, e, E[4]);
-        if (f != E[5]) `FAILED_EXP(0, f, E[5]);
-        if (g != E[6]) `FAILED_EXP(0, g, E[6]);
-        if (h != E[7]) `FAILED_EXP(0, h, E[7]);
+        if (a !== E[0]) `FAILED_EXP(0, a, E[0]);
+        if (b !== E[1]) `FAILED_EXP(1, b, E[1]);
+        if (c !== E[2]) `FAILED_EXP(2, c, E[2]);
+        if (d !== E[3]) `FAILED_EXP(3, d, E[3]);
+        if (e !== E[4]) `FAILED_EXP(4, e, E[4]);
+        if (f !== E[5]) `FAILED_EXP(5, f, E[5]);
+        if (g !== E[6]) `FAILED_EXP(6, g, E[6]);
+        if (h !== E[7]) `FAILED_EXP(7, h, E[7]);
 
         // $display("a: %b",mut.a);
         // $display("b: %b",mut.b);

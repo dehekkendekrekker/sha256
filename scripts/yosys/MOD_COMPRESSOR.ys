@@ -1,8 +1,8 @@
-read_verilog -sv ./src/verilog/MOD_SHA256.v 
+read_verilog -sv ./src/verilog/MOD_COMPRESSOR.v 
 # blackbox MOD_MEM32K
 proc
-hierarchy -top MOD_SHA256
-#opt
+hierarchy -top MOD_COMPRESSOR
+opt
 #techmap -map ./techmaps/gates.v
 
 # Map all flipflops and convert them to types that are included in the chipset
@@ -20,5 +20,5 @@ hierarchy -top MOD_SHA256
 
 #memory_share
 #opt
-write_json ./build/MOD_SHA256.json
-show -colors 1 -width MOD_SHA256
+write_json ./build/MOD_COMPRESSOR.json
+show -colors 1 -width MOD_COMPRESSOR
