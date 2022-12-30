@@ -1,11 +1,10 @@
 module MOD_SHA256_TB;
 `INIT
 
-MOD_SHA256 mut(CLK, W);
+MOD_SHA256 mut(CLK);
 
 
 reg CLK;
-wire [31:0] W;
 
 localparam period = 20;  
 
@@ -18,12 +17,6 @@ initial begin
     CLK = 0;
 
     #20000
-
-    // Check K constants
-    `INFO("Checking W");
-    for (integer i = 0; i < 64; i=i+1) begin
-        $display("%d: %b", i, mut.W[i]);
-    end
 
 
     $finish();
