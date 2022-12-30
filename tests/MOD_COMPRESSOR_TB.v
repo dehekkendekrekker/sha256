@@ -1,20 +1,22 @@
 module MOD_COMPRESSOR_TB;
 `INIT
 
-MOD_COMPRESSOR mut(HI, WI, H_IN, K_IN, H_OUT);
+MOD_COMPRESSOR mut(CLK, RESET, I, W_IN, K_IN, 
+H[0],H[1],H[2],H[3],H[4],H[5],H[6],H[7],
+a,b,c,d,e,f,g,h
+);
 
-reg CLK, COMPLETE;
-reg [2:0] HI;
-reg [5:0] WI;
-reg [31:0] H_IN, K_IN;
-wire [31:0] H_OUT;
+reg CLK, COMPLETE, RESET;
+reg [5:0] I;
+reg [31:0] K_IN, W_IN;
+
+reg [31:0] K [64];
+reg [31:0] W [64];
+reg [31:0] H [8];
+reg [31:0] E [8];
+reg [31:0] a,b,c,d,e,f,g,h;
 
 localparam period = 20;  
-
-
-reg [31:0] W,K [64];
-reg [31:0] H [8];
-
 
 initial begin
     `SET_MOD("MOD_COMPRESSOR_TB");
@@ -180,73 +182,65 @@ K[63] = 32'hc67178f2;
 end
 
 
+// Setup expectations
+initial begin
+E[0] = 32'b00100111010011111111000101111000;
+E[1] = 32'b01010110101110100001111110010011;
+E[2] = 32'b10011110000111000000001101001111;
+E[3] = 32'b01011101111010111011100111110011;
+E[4] = 32'b00010011101110101111011001000011;
+E[5] = 32'b11011101001101111010010001001000;
+E[6] = 32'b10111110111110010001100000000001;
+E[7] = 32'b00110011110000101100010101110001;
+end
+
 
 // Setup clock signal
 always #period CLK = ~CLK;
 
-localparam ST_INIT_H = 0;
-localparam ST_COMPRESS = 1;
-
-reg state;
+assign K_IN = K[I];
+assign W_IN = W[I];
 
 initial begin
-    state = ST_INIT_H;
-    HI = 0;
-    WI = 0;
+    RESET = 1;
     COMPLETE = 0;
     CLK = 1;
-    H_IN = H[HI];
-    K_IN = K[WI];
+    I = 0;
 end
 
 always @(negedge CLK) begin
+    if (RESET)
+        RESET <= 0;
     
 end
 
 // Counter behaviour
 always @(posedge CLK) begin
-    // H_IN = H[HI];
-    case(state)
-    ST_INIT_H: begin
-        if (HI == 7) begin
-            // Verify status
-            for (integer i =0 ; i <8; i++) begin
-                if (mut.H[i] != H[i])
-                    `FAILED_EXP(i, mut.H[i], H[i]);
-            end
-            if (mut.a != H[0]) `FAILED("mut.a != H[0]");
-            if (mut.b != H[1]) `FAILED("mut.b != H[1]");
-            if (mut.c != H[2]) `FAILED("mut.c != H[2]");
-            if (mut.d != H[3]) `FAILED("mut.d != H[3]");
-            if (mut.e != H[4]) `FAILED("mut.e != H[4]");
-            if (mut.f != H[5]) `FAILED("mut.f != H[5]");
-            if (mut.g != H[6]) `FAILED("mut.g != H[6]");
-            if (mut.h != H[7]) `FAILED("mut.h != H[7]");
+    I = I + 1;
+    if (I==63) begin
+        $display("=== DONE ===");
+        if (a != E[0]) `FAILED_EXP(0, a, E[0]);
+        if (b != E[1]) `FAILED_EXP(0, b, E[1]);
+        if (c != E[2]) `FAILED_EXP(0, c, E[2]);
+        if (d != E[3]) `FAILED_EXP(0, d, E[3]);
+        if (e != E[4]) `FAILED_EXP(0, e, E[4]);
+        if (f != E[5]) `FAILED_EXP(0, f, E[5]);
+        if (g != E[6]) `FAILED_EXP(0, g, E[6]);
+        if (h != E[7]) `FAILED_EXP(0, h, E[7]);
 
-                
-            state = ST_COMPRESS;
-        end else
-            HI = HI + 1;
+        // $display("a: %b",mut.a);
+        // $display("b: %b",mut.b);
+        // $display("c: %b",mut.c);
+        // $display("d: %b",mut.d);
+        // $display("e: %b",mut.e);
+        // $display("f: %b",mut.f);
+        // $display("g: %b",mut.g);
+        // $display("h: %b",mut.h);
+        $finish();
     end
-    ST_COMPRESS: begin
-        if (WI == 63)
-            COMPLETE = 1;
-        else
-            WI = WI + 1;
-    end
-
-    endcase
-
-    H_IN = H[HI];
 end
 
-always @(posedge COMPLETE) begin
-    // for (integer i = 0; i < 64; i=i+1) begin
-    //     if(W[i] !== E[i])
-    //         `FAILED_EXP(i, W[i], E[i]);
-    // end
-    $finish();
-end
+
 
 
 

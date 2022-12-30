@@ -19,18 +19,27 @@ For the time being, E is placed in W[i] until we figure out how to integrate the
 */
 
 `include "./src/verilog/7400/MOD_74x393.v"
-module MOD_W_MEM(I, D_IN, D_OUT);
+module MOD_W_MEM(CLK, I, D_IN, D_OUT, RDY);
 
-//input            CLK;
+input            CLK;
 input      [5:0] I ; // W Mem index
 input      [31:0] D_IN; // Data bus IN
 output reg [31:0] D_OUT; // Data OUT
+output reg RDY; // Ready indicator
 
 reg [31:0] w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15;
 reg [31:0] s0,s1;
 
-always @(I) begin
-    // $display("I: %d", I);
+initial begin
+    RDY = 0;
+end
+
+
+always @(posedge CLK) begin
+    RDY <= 0;
+end
+
+always @(negedge CLK) begin
     if (I < 16)
         D_OUT = D_IN;
     else begin
@@ -71,6 +80,8 @@ always @(I) begin
     w2 <= w3;
     w1 <= w2;
     w0 <= w1;
+
+    RDY <= 1;
 
     // $display("=====================================");
     // $display("w0:  %b", w0);

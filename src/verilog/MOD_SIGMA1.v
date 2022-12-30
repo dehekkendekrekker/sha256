@@ -1,8 +1,8 @@
 module MOD_SIGMA1(
-    input [0:31] A,
-    output [0:31] Y
+    input [31:0] A,
+    output [31:0] Y
 );
 
-assign Y = {A[26:31], A[0:25]} ^ {A[21:31], A[0:20]} ^ {A[7:31], A[0:6]};
+assign Y =  {A[5:0], A[31:6]} ^ {A[10:0], A[31:11]} ^ {A[24:0], A[31:25]};
 
 endmodule

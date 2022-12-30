@@ -1,12 +1,13 @@
 module MOD_W_MEM_TB;
 `INIT
 
-MOD_W_MEM mut(I, D_IN, D_OUT);
+MOD_W_MEM mut(CLK, I, D_IN, D_OUT, RDY);
 
 reg CLK, COMPLETE;
 reg [5:0] I;
 reg [31:0] D_IN;
 wire [31:0] D_OUT;
+reg RDY;
 
 localparam period = 20;  
 
@@ -174,33 +175,35 @@ initial begin
     I = 0;
     COMPLETE = 0;
     CLK = 1;
-    D_IN = W[I];
 end
 
-always @(negedge CLK) begin
-    
-end
+
+assign D_IN = W[I];
+
 
 // Counter behaviour
 always @(posedge CLK) begin
+    if(D_OUT !== E[I])
+        `FAILED_EXP(I, D_OUT, E[I])
+   
     I = I + 1;
-    D_IN = W[I];
-    
-
     if (I == 0)
-        COMPLETE <= 1;
+        COMPLETE = 1;
 end
 
-always @(D_OUT) begin
-    W[I] = D_OUT;
-end
+// always @(D_OUT) begin
+//     W[I] = D_OUT;
+// end
 
+// always @(D_OUT) begin
+//     $display("POS I: %d, D_OUT: %b", I, D_OUT);
+// end
 
 always @(posedge COMPLETE) begin
-    for (integer i = 0; i < 64; i=i+1) begin
-        if(W[i] !== E[i])
-            `FAILED_EXP(i, W[i], E[i]);
-    end
+    // for (integer i = 0; i < 64; i=i+1) begin
+    //     if(W[i] !== E[i])
+    //         `FAILED_EXP(i, W[i], E[i]);
+    // end
     $finish();
 end
 
