@@ -90,7 +90,7 @@ end
 
 always @* begin
 	if (!CE && !OE && WE) begin
-		IO <= buffer[A];
+		#150 IO <= buffer[A];
 	end
 end
 
@@ -188,7 +188,7 @@ end
 
 always @* begin
 	if (!CE && !OE && WE) begin
-		IO <= buffer[A];
+		#150 IO <= buffer[A];
 	end
 end
 
@@ -286,7 +286,7 @@ end
 
 always @* begin
 	if (!CE && !OE && WE) begin
-		IO <= buffer[A];
+		#150 IO <= buffer[A];
 	end
 end
 
@@ -384,7 +384,7 @@ end
 
 always @* begin
 	if (!CE && !OE && WE) begin
-		IO <= buffer[A];
+		#150 IO <= buffer[A];
 	end
 end
 

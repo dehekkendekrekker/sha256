@@ -18,13 +18,13 @@ assign IO = drive_output ? buffer[A] : 8'bZ;
 
 always @* begin
 	if (!CS && !OE && WE) begin
-		drive_output <= 1;
+		#12 drive_output <= 1;
 	end else begin
 		drive_output <= 0;
 	end
 
 	if (!CS && !WE) begin
-		buffer[A] <= IO;
+		#12 buffer[A] <= IO;
 	end
 end
 

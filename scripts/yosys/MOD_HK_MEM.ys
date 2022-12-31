@@ -1,7 +1,7 @@
-read_verilog -nomeminit ./src/verilog/MOD_MEMMGR.v 
+read_verilog -nomeminit ./src/verilog/MOD_HK_MEM.v 
 blackbox MOD_MEM32K
 proc
-hierarchy -top MOD_MEMMGR
+hierarchy -top MOD_HK_MEM
 opt
 #techmap -map ./techmaps/gates.v
 
@@ -17,5 +17,5 @@ techmap -map ./techmaps/extracted.v
 # Map the used memory banks to a generic name. 
 techmap -map ./techmaps/memories.v
 opt
-write_json ./build/MOD_MEMMGR.json
-show -colors 1 -width MOD_MEMMGR
+write_json ./build/MOD_HK_MEM.json
+show -colors 1 -width MOD_HK_MEM
