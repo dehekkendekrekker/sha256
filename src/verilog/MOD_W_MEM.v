@@ -18,7 +18,6 @@ For the time being, E is placed in W[i] until we figure out how to integrate the
 
 */
 
-// `include "./src/verilog/7400/MOD_74x393.v"
 `include "./src/verilog/MOD_S0.v"
 `include "./src/verilog/MOD_S1.v"
 module MOD_W_MEM(CLK, I, D_IN, D_OUT, RDY);

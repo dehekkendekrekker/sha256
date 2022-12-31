@@ -1,6 +1,8 @@
 // This module ties everything together
 
 `include "./src/verilog/MOD_COMPRESSOR.v"
+`include "./src/verilog/MOD_MEM128K.v"
+`include "./src/verilog/7400/MOD_74x393.v"
 module MOD_SHA256(CLK);
 
 input CLK;
@@ -8,6 +10,16 @@ input CLK;
 MOD_COMPRESSOR compressor(CLK, RESET, I, W, K, 
 H[0],H[1],H[2],H[3],H[4],H[5],H[6],H[7],
 R[0],R[1],R[2],R[3],R[4],R[5],R[6],R[7]);
+
+
+// This module holds the message block
+// MOD_MEM128K msg_blk();
+
+// The counter that loops through the H and W/K address space
+// MOD_74x393 ctr();
+
+
+ 
 
 // We should be some logic that copies the H values into the latches
 // Latches should be implemented here
@@ -24,11 +36,27 @@ reg [31:0] W, K;
 
 
 
-
-
-
-
 endmodule
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
