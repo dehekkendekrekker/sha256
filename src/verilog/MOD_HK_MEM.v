@@ -23,7 +23,9 @@ module MOD_HK_MEM(
 
 MOD_EEPROM32K ROM(ROM_A, ROM_D, ~resetting, 1'b0, 1'b1); // Output enabled, write disabled;
 MOD_MEM128K RAM({7'b0000000,RAM_A}, RAM_DR, ROM_D, RAM_clk, resetting, ~resetting);
-MOD_COUNTER addr_ctr(addr_clk,~resetting, ctr_output);
+
+// The counter should advance on the positive edge of the addr_clk
+MOD_COUNTER addr_ctr(~addr_clk,~resetting, ctr_output); 
 MOD_COUNTER delay(CLK,~resetting, delay_output);
 
 
@@ -61,8 +63,6 @@ reg delay_clk;
 assign cpy_addr = add_buf + ctr_output;
 
 
-
-
 reg [12:0] ROM_A;
 
 // RAM related
@@ -84,7 +84,7 @@ initial begin
     RDY = 0;
     resetting = 0;
     add_buf = 0;
-    addr_clk = 0;
+    addr_clk = 1;
 end
 
 
@@ -93,17 +93,21 @@ always @(negedge CLK) begin
     if (RST == 1) begin
         resetting <= 1;  // We enable the ROM copy counter
     end
+end
+
+always @(posedge CLK) begin
+    if (delay_output % 4 == 0) begin
+        addr_clk <= ~addr_clk;
+    end
+end
+
+always @(posedge addr_clk) begin
     if (ctr_output == 71) begin
         resetting <= 0; // Disable copying
         RDY <= 1;
     end
     if (cpy_addr == 7) begin
         add_buf <= 56;
-    end
-    // This is a delay control to compensate for the ROM's slow acces time. 16 means that every 32 
-    // clock ticks RAM will be written
-    if (delay_output % 16 == 0) begin
-        addr_clk <= ~addr_clk;
     end
 end
 

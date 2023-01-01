@@ -8,14 +8,14 @@ MOD_HK_MEM mut(
     H_ADDR,
     K_ADDR,
     HK,
-    COPY_ROM_COMPLETE
+    RDY
 );
 
 
 
 reg CLK;
 reg COPY_ROM; // When positive, the init sequence of the memory manager will run
-wire COPY_ROM_COMPLETE;
+wire RDY;
 reg HK_SELECTOR;
 reg [2:0] H_ADDR;
 reg [5:0] K_ADDR;
@@ -117,7 +117,8 @@ initial begin
     CLK = 0;
 
 
-    #20000
+    #2000000
+    `FAILED("TIMEOUT");
     $finish();
 
 end
@@ -149,7 +150,7 @@ initial begin
     HK_SELECTOR = HSEL;
 end
 
-always @(posedge COPY_ROM_COMPLETE) begin
+always @(posedge RDY) begin
     reg [31:0] value;
     COPY_ROM = 0;
     state = prep_test_H;
@@ -197,7 +198,12 @@ always @(posedge CLK) begin
         if (HK !== KE[K_ADDR])
             `FAILED_EXP(K_ADDR, HK, KE[K_ADDR]);
         K_ADDR += 1;
-        if (K_ADDR == 0) $finish;
+        if (K_ADDR == 0) begin
+            if (!RDY) 
+                `FAILED("RDY NOT SET");
+            $finish;
+        end
+
     end
     endcase
 
@@ -207,7 +213,7 @@ always @(posedge CLK) begin
 end
 
 
-// Load W mem and test
+
 
 endmodule
 
