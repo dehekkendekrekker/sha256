@@ -1,6 +1,6 @@
 `include "./src/verilog/MOD_MEM128K.v"
 `include "./src/verilog/MOD_EEPROM32K.v"
-`include "./src/verilog/7400/MOD_74x393.v"
+`include "./src/verilog/MOD_COUNTER.v"
 
 
 // This module implements an abstraction of a 32 bits wide RAM module
@@ -9,6 +9,8 @@
 // When copying is done, RDY is pulled high, indicating the module is ready for use.
 // H and K value can be retrieved by applying 0 and 1 to HK_SELECTOR respectively.
 // By applying the correct address to H_ADDR and K_ADDR respectively, the requested value will be presented on RAM_DR when CLK is low.
+`ifndef MOD_HK_MEM
+`define MOD_HK_MEM
 module MOD_HK_MEM(
     input CLK,
     input RST,
@@ -21,8 +23,8 @@ module MOD_HK_MEM(
 
 MOD_EEPROM32K ROM(ROM_A, ROM_D, ~resetting, 1'b0, 1'b1); // Output enabled, write disabled;
 MOD_MEM128K RAM({7'b0000000,RAM_A}, RAM_DR, ROM_D, RAM_clk, resetting, ~resetting);
-MOD_74x393 addr_ctr(addr_clk,~resetting, ctr_output[3],~resetting, ctr_output[3:0], ctr_output[7:4]);
-MOD_74x393 delay(CLK,~resetting, delay_output[3],~resetting, delay_output[3:0], delay_output[7:4]);
+MOD_COUNTER addr_ctr(addr_clk,~resetting, ctr_output);
+MOD_COUNTER delay(CLK,~resetting, delay_output);
 
 
 // Data bus
@@ -121,3 +123,4 @@ end
 // end
 
 endmodule
+`endif

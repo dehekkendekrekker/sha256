@@ -1,5 +1,7 @@
 `include "./src/verilog/MOD_EEPROM8K.v"
 
+`ifndef MOD_EEPROM32K
+`define MOD_EEPROM32K
 (* keep *)
 module MOD_EEPROM32K(
 	input [0:12] A,
@@ -15,4 +17,4 @@ MOD_EEPROM8K_3 bank_3(A, IO[16:23], CE, OE, WE);
 MOD_EEPROM8K_4 bank_4(A, IO[24:31], CE, OE, WE);
 
 endmodule
-
+`endif

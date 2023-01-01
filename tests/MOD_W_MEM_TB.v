@@ -191,19 +191,8 @@ always @(posedge CLK) begin
         COMPLETE = 1;
 end
 
-// always @(D_OUT) begin
-//     W[I] = D_OUT;
-// end
-
-// always @(D_OUT) begin
-//     $display("POS I: %d, D_OUT: %b", I, D_OUT);
-// end
-
 always @(posedge COMPLETE) begin
-    // for (integer i = 0; i < 64; i=i+1) begin
-    //     if(W[i] !== E[i])
-    //         `FAILED_EXP(i, W[i], E[i]);
-    // end
+    `SUCCESS("RDY HIGH");
     $finish();
 end
 

@@ -16,7 +16,8 @@ initial begin
 
     CLK = 0;
 
-    #20000
+    #50000
+    `FAILED("TIMEOUT");
 
 
     $finish();

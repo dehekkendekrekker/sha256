@@ -1,3 +1,5 @@
+`ifndef MOD_MEM32K
+`define MOD_MEM32K
 (* keep *)
 module MOD_MEM32K(
 	input [0:14] A,
@@ -29,4 +31,4 @@ always @* begin
 end
 
 endmodule
-
+`endif

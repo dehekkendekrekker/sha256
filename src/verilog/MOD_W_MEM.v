@@ -20,6 +20,9 @@ For the time being, E is placed in W[i] until we figure out how to integrate the
 
 `include "./src/verilog/MOD_S0.v"
 `include "./src/verilog/MOD_S1.v"
+
+`ifndef MOD_W_MEM
+`define MOD_W_MEM
 module MOD_W_MEM(CLK, I, D_IN, D_OUT, RDY);
 
 input            CLK;
@@ -38,7 +41,7 @@ initial begin
     RDY = 0;
 end
 
-
+// This puts this module in an operational state
 always @(posedge CLK) begin
     RDY <= 0;
 end
@@ -72,3 +75,4 @@ end
 
 
 endmodule
+`endif

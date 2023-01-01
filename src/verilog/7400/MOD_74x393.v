@@ -1,5 +1,7 @@
 // 74x393 Dual 4-bit ripple counter
 (* blackbox *)
+`ifndef MOD_74x393
+`define MOD_74x393
 module MOD_74x393 (
     input CLK1,
     input CLR1,
@@ -29,3 +31,4 @@ always @(negedge CLK2) begin
 end
 
 endmodule
+`endif

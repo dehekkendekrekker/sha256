@@ -4,7 +4,8 @@
 `include "./src/verilog/MOD_CHOICE.v"
 `include "./src/verilog/MOD_MAJORITY.v"
 
-
+`ifndef MOD_COMPRESSOR
+`define MOD_COMPRESSOR
 module MOD_COMPRESSOR(CLK, RESET, I, W_IN, K, 
 H0_IN,H1_IN,H2_IN,H3_IN,H4_IN,H5_IN,H6_IN,H7_IN,
 a,b,c,d,e,f,g,h
@@ -23,10 +24,10 @@ MOD_CHOICE choice(e,f,g,ch);
 MOD_MAJORITY majority(a,b,c,maj);
 
 reg [31:0] W_OUT;
-reg RDY;
 
 reg [31:0] t1,t2;
 reg [31:0] s0, s1, ch, maj;
+reg RDY;
 
 // Assignment of temp regs
 assign t1 = h + s1 + ch + K + W_OUT;
@@ -63,4 +64,4 @@ end
 
 
 endmodule
-
+`endif

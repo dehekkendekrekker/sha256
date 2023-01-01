@@ -1,3 +1,5 @@
+`ifndef MOD_MAJORITY
+`define MOD_MAJORITY
 module MOD_MAJORITY(
     input [0:31] A,
     input [0:31] B,
@@ -8,3 +10,4 @@ module MOD_MAJORITY(
 assign Y = (A & B) ^ (A & C) ^ (B & C);
     
 endmodule
+`endif

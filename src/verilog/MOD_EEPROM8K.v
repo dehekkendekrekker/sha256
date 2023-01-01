@@ -1,3 +1,5 @@
+`ifndef MOD_EEPROM8K_1
+`define MOD_EEPROM8K_1
 (* keep *)
 (* blackbox *)
 module MOD_EEPROM8K_1(
@@ -95,7 +97,10 @@ always @* begin
 end
 
 endmodule
+`endif
 
+`ifndef MOD_EEPROM8K_2
+`define MOD_EEPROM8K_2
 (* keep *)
 (* blackbox *)
 module MOD_EEPROM8K_2(
@@ -193,7 +198,10 @@ always @* begin
 end
 
 endmodule
+`endif
 
+`ifndef MOD_EEPROM8K_3
+`define MOD_EEPROM8K_3
 (* keep *)
 (* blackbox *)
 module MOD_EEPROM8K_3(
@@ -291,7 +299,10 @@ always @* begin
 end
 
 endmodule
+`endif
 
+`ifndef MOD_EEPROM8K_4
+`define MOD_EEPROM8K_4
 (* keep *)
 (* blackbox *)
 module MOD_EEPROM8K_4(
@@ -389,4 +400,4 @@ always @* begin
 end
 
 endmodule
-
+`endif

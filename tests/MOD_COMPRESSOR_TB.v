@@ -218,7 +218,6 @@ end
 always @(posedge CLK) begin
     I = I + 1;
     if (I==63) begin
-        $display("=== DONE ===");
         if (a !== E[0]) `FAILED_EXP(0, a, E[0]);
         if (b !== E[1]) `FAILED_EXP(1, b, E[1]);
         if (c !== E[2]) `FAILED_EXP(2, c, E[2]);
@@ -228,17 +227,10 @@ always @(posedge CLK) begin
         if (g !== E[6]) `FAILED_EXP(6, g, E[6]);
         if (h !== E[7]) `FAILED_EXP(7, h, E[7]);
 
-        // $display("a: %b",mut.a);
-        // $display("b: %b",mut.b);
-        // $display("c: %b",mut.c);
-        // $display("d: %b",mut.d);
-        // $display("e: %b",mut.e);
-        // $display("f: %b",mut.f);
-        // $display("g: %b",mut.g);
-        // $display("h: %b",mut.h);
         $finish();
     end
 end
+
 
 
 
