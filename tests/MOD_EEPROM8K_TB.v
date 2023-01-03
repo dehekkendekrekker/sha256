@@ -15,7 +15,7 @@ reg CE;
 reg OE;
 reg WE;
 
-localparam period = 20;  
+localparam period = 175;  
 
 initial begin
     `SET_MOD("MOD_EEPROM8K_TB");

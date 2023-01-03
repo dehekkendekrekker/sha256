@@ -8,7 +8,7 @@
 // These values are stored in a ROM module, that are copied to the RAM when RST is high.
 // When copying is done, RDY is pulled high, indicating the module is ready for use.
 // H and K value can be retrieved by applying 0 and 1 to HK_SELECTOR respectively.
-// By applying the correct address to H_ADDR and K_ADDR respectively, the requested value will be presented on RAM_DR when CLK is low.
+// By applying the correct address to H_ADDR and K_ADDR respectively, the requested value will be presented on RAM_D when CLK is low.
 `ifndef MOD_HK_MEM
 `define MOD_HK_MEM
 module MOD_HK_MEM(
@@ -17,12 +17,15 @@ module MOD_HK_MEM(
     input HK_SELECTOR,
     input [2:0] H_ADDR,
     input [5:0] K_ADDR,
-    output [31:0] RAM_DR,
+    output [31:0] RAM_D,
     output reg RDY
 );
 
-MOD_EEPROM32K ROM(ROM_A, ROM_D, ~resetting, 1'b0, 1'b1); // Output enabled, write disabled;
-MOD_MEM128K RAM({7'b0000000,RAM_A}, RAM_DR, ROM_D, RAM_clk, resetting, ~resetting);
+MOD_EEPROM32K ROM(ROM_A, ROM_D, 1'b0, 1'b0, 1'b1); // Output enabled, write disabled;
+
+// Writing to RAM
+// Write occurs when RAM_clk goes down
+MOD_MEM128K RAM({7'b0000000,RAM_A}, RAM_D, ROM_D, RAM_clk, resetting, ~resetting);
 
 // The counter should advance on the positive edge of the addr_clk
 MOD_COUNTER addr_ctr(~addr_clk,~resetting, ctr_output); 

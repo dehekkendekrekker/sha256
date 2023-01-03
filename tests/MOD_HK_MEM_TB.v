@@ -124,30 +124,29 @@ initial begin
 end
 
 
-// Setup clock signal
+
 always #period CLK = ~CLK;
 
 
 reg [7:0] state;
 
-localparam copying_rom = 0;
-localparam test_H = 1;
-localparam test_K = 2;
-localparam test_W = 3;
-localparam load_W = 4;
-localparam prep_test_H =5;
-localparam prep_test_K = 6;
+localparam init = 0;
+localparam copying_rom = 1;
+localparam test_H = 2;
+localparam test_K = 3;
+localparam test_W = 4;
+localparam load_W = 5;
+localparam prep_test_H =6;
+localparam prep_test_K = 7;
 
 localparam HSEL=0;
 localparam KSEL=1;
 
 // Execute
 initial begin
-    COPY_ROM = 1;
-    
     K_ADDR = 0;
     H_ADDR = 0;
-    state = copying_rom;
+    state = init;
     HK_SELECTOR = HSEL;
 end
 
@@ -173,8 +172,21 @@ always @(posedge RDY) begin
     end
 end
 
+
+reg [7:0] ctr;
+
+initial ctr = 0;
+
 always @(posedge CLK) begin
     case(state)
+    init: begin
+        ctr += 1;
+        if (ctr == 0) state <= copying_rom;
+    end
+    copying_rom: begin
+        COPY_ROM = 1;
+    end
+
     prep_test_H: begin
         $display("Checking H-values");
         state = test_H;

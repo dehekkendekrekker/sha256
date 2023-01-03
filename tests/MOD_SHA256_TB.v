@@ -44,6 +44,7 @@ always @(mut.state) begin
     if (mut.state == mut.MEM_INIT_DONE) begin
         reg [31:0] value;
         // Verify if the H-values are loaded correctly
+        $display("Verifying H values");
         for (integer i =0; i<8;i++) begin
             value = {mut.hk_mem.RAM.bank_1.buffer[i],
                      mut.hk_mem.RAM.bank_2.buffer[i],
