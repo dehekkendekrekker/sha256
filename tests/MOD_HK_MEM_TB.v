@@ -146,6 +146,7 @@ initial begin
     COPY_ROM = 1;
     
     K_ADDR = 0;
+    H_ADDR = 0;
     state = copying_rom;
     HK_SELECTOR = HSEL;
 end
@@ -176,7 +177,6 @@ always @(posedge CLK) begin
     case(state)
     prep_test_H: begin
         $display("Checking H-values");
-        H_ADDR = 0;
         state = test_H;
     end
     test_H: begin

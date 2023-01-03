@@ -1,5 +1,14 @@
 `include "./src/verilog/MOD_EEPROM8K.v"
 
+
+/*
+CE active low
+OE active low
+WE active low
+
+CE = 0, OE=0, WE =1 means READ
+*/
+
 `ifndef MOD_EEPROM32K
 `define MOD_EEPROM32K
 (* keep *)

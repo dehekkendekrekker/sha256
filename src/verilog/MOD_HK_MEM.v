@@ -72,7 +72,7 @@ reg RAM_clk;
 assign ROM_A = {5'b00000, ctr_output};
 
 // The addr clock is slowed down when initializing
-assign RAM_clk = (resetting) ? addr_clk : CLK;
+assign RAM_clk = (resetting) ? addr_clk : 1'b0;
 
 
 
@@ -90,13 +90,13 @@ end
 
 // We determine when the ROM copy should end
 always @(negedge CLK) begin
-    if (RST == 1) begin
+    if (RST == 1 && ~RDY) begin
         resetting <= 1;  // We enable the ROM copy counter
     end
 end
 
 always @(posedge CLK) begin
-    if (delay_output % 4 == 0) begin
+    if (delay_output % 6 == 0) begin
         addr_clk <= ~addr_clk;
     end
 end

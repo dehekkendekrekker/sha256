@@ -14,6 +14,20 @@ MOD_COMPRESSOR compressor(CLK, RST_COMP, I, W, K,
 H[0],H[1],H[2],H[3],H[4],H[5],H[6],H[7],
 R[0],R[1],R[2],R[3],R[4],R[5],R[6],R[7]);
 
+/*
+============================
+Setup H counter
+============================
+*/
+
+MOD_COUNTER h_ctr(CLK, H_CTR_RST, H_CTR_D);
+
+wire [7:0] H_CTR_D;
+reg H_CTR_RST;
+initial begin
+    H_CTR_RST = 1; // Start in RESET mode
+end
+
 
 
 
@@ -32,9 +46,14 @@ wire HK_RDY;
 
 
 assign HK_CLK = CLK;
+assign H_ADDR = H_CTR_D;
+
+localparam H_SEL = 0;
+localparam K_SEL = 1;
 
 initial begin
     HK_RST = 0;
+    HK_SELECTOR = H_SEL;
 end
 
 
@@ -67,13 +86,19 @@ reg [31:0] W, K;
 reg [7:0] state;
 
 localparam DEV_START = 0;
-localparam DEV_BOOTING = 5;
-localparam PRE_MEM_INIT =7;
-localparam MEM_INIT = 10;
-localparam LOAD_MSG = 15;
-localparam RST_COMP_H = 20;
-localparam PROC = 30;
-localparam SAVE_HASH = 40;
+localparam DEV_BOOTING = 10;
+localparam PRE_MEM_INIT =15;
+localparam MEM_INIT = 20;
+localparam MEM_INIT_DONE = 21;
+
+localparam PRE_LOAD_H = 25;
+localparam LOAD_H = 30;
+localparam LOAD_H_DONE = 35;
+
+localparam LOAD_MSG = 40;
+localparam RST_COMP_H = 45;
+localparam PROC = 50;
+localparam SAVE_HASH = 55;
 
 
 // We're dealing with a couple of situations:
@@ -112,11 +137,33 @@ always @(negedge CLK) begin
         state <= MEM_INIT;
     end
     MEM_INIT: begin
+        // This state initializes the H/K memory module, making it ready for operation.
+        // This means that all H-values and K-constants have been copied to RAM.
         if (HK_RDY) begin
-            $display("END");
-            $finish;
+            state <= MEM_INIT_DONE;
         end
     end
+    MEM_INIT_DONE: begin
+        HK_RST <= 0;
+        state <= PRE_LOAD_H;
+    end
+    PRE_LOAD_H: begin
+        H_CTR_RST <= 0; // Start counting
+        HK_SELECTOR <= H_SEL;
+        state <= LOAD_H;
+    end
+    LOAD_H: begin
+        $display("A: %d, D: %h", H_ADDR, HK_DATA);
+        if (H_CTR_D == 8) 
+            state <= LOAD_H_DONE;
+    end
+    LOAD_H_DONE: begin
+        H_CTR_RST = 1;
+        $display("END");
+        $finish;
+
+    end
+
     endcase
 end
 
