@@ -193,7 +193,7 @@ initial enabled = 0;
 // Counter behaviour
 always @(CLK) begin
     if (enabled) I = I + 1;
-    if (!enabled) enabled = 1;
+    if (!enabled) enabled <= 1;
     
     #1 if(D_OUT !== E[I])
         `FAILED_EXP(I, D_OUT, E[I])

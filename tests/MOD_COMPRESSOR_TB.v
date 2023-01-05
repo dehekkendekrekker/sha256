@@ -16,6 +16,7 @@ reg [31:0] H [8];
 reg [31:0] E [8];
 reg [31:0] a,b,c,d,e,f,g,h;
 
+
 localparam period = 20;  
 
 initial begin
@@ -25,6 +26,7 @@ initial begin
     $timeformat(-6, 0, " us", 20);
 
     #20000
+    `FAILED("TIMEOUT");
     $finish();
 end
 
@@ -196,7 +198,14 @@ end
 
 
 // Setup clock signal
-always #period CLK = ~CLK;
+reg [15:0] clk_count;
+initial clk_count = 0;
+always begin 
+    #period CLK = ~CLK;
+    if (CLK) clk_count++;
+end
+
+
 
 assign K_IN = K[I];
 assign W_IN = W[I];
@@ -204,19 +213,23 @@ assign W_IN = W[I];
 initial begin
     RESET = 1;
     COMPLETE = 0;
-    CLK = 1;
+    CLK = 0;
     I = 0;
 end
 
-always @(negedge CLK) begin
-    if (RESET)
-        RESET <= 0;
+// always @(negedge CLK) begin
+//     if (RESET)
+//         RESET <= 0;
     
-end
+// end
+
+reg enabled;
+initial enabled = 0;
 
 // Counter behaviour
-always @(posedge CLK) begin
-    I = I + 1;
+always @(posedge CLK, negedge CLK) begin
+    if (!enabled) enabled <= 1;
+    if (RESET) RESET <= 0;
     if (I==63) begin
         if (a !== E[0]) `FAILED_EXP(0, a, E[0]);
         if (b !== E[1]) `FAILED_EXP(1, b, E[1]);
@@ -227,8 +240,12 @@ always @(posedge CLK) begin
         if (g !== E[6]) `FAILED_EXP(6, g, E[6]);
         if (h !== E[7]) `FAILED_EXP(7, h, E[7]);
 
+        $display("CLK count: %1d", clk_count);
+
         $finish();
     end
+    if (enabled) I = I + 1;
+    
 end
 
 
