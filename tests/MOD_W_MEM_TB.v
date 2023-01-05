@@ -8,7 +8,6 @@ reg [5:0] I;
 reg [31:0] D_IN;
 wire [31:0] D_OUT;
 
-
 localparam period = 50;  
 
 
@@ -191,26 +190,19 @@ initial enabled = 0;
 
 
 // Counter behaviour
-always @(CLK) begin
-    if (enabled) I = I + 1;
+always @(negedge CLK) begin
     if (!enabled) enabled <= 1;
-    
-    #1 if(D_OUT !== E[I])
+
+    if(D_OUT !== E[I])
         `FAILED_EXP(I, D_OUT, E[I])
-   
-    
+
     if (I == 63) begin
         $display("CLK count: %1d", clk_count);
         $finish();
     end
 
+    if (enabled) I = I + 1;
 end
-
-
-
-
-
-
 
 
 endmodule
