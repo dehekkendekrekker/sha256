@@ -1,15 +1,15 @@
 module MOD_W_MEM_TB;
 `INIT
 
-MOD_W_MEM mut(CLK, I, D_IN, D_OUT, RDY);
+MOD_W_MEM mut(CLK, I, D_IN, D_OUT);
 
 reg CLK, COMPLETE;
 reg [5:0] I;
 reg [31:0] D_IN;
 wire [31:0] D_OUT;
-reg RDY;
 
-localparam period = 20;  
+
+localparam period = 50;  
 
 
 reg [31:0] W [64];
@@ -20,7 +20,7 @@ initial begin
     `SET_MOD("MOD_W_MEM_TB");
     $dumpfile("./build/MOD_W_MEM_TB.vcd");
     $dumpvars(0, MOD_W_MEM_TB);
-    $timeformat(-6, 0, " us", 20);
+    $timeformat(-6, 0, "us", 50);
 
     #20000
     $finish();
@@ -168,33 +168,44 @@ initial begin
 end
 
 // Setup clock signal
-always #period CLK = ~CLK;
+reg [15:0] clk_count;
+initial clk_count = 0;
+always begin 
+    #period CLK = ~CLK;
+    if (CLK) clk_count++;
+end
+
 
 
 initial begin
     I = 0;
-    COMPLETE = 0;
-    CLK = 1;
+    CLK = 0;
 end
 
 
 assign D_IN = W[I];
+reg enabled;
+
+
+initial enabled = 0;
 
 
 // Counter behaviour
-always @(posedge CLK) begin
-    if(D_OUT !== E[I])
+always @(CLK) begin
+    if (enabled) I = I + 1;
+    if (!enabled) enabled = 1;
+    
+    #1 if(D_OUT !== E[I])
         `FAILED_EXP(I, D_OUT, E[I])
    
-    I = I + 1;
-    if (I == 0)
-        COMPLETE = 1;
+    
+    if (I == 63) begin
+        $display("CLK count: %1d", clk_count);
+        $finish();
+    end
+
 end
 
-always @(posedge COMPLETE) begin
-    `SUCCESS("RDY HIGH");
-    $finish();
-end
 
 
 
