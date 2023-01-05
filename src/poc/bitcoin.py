@@ -216,6 +216,9 @@ class SHA256_naieve(SHA256):
         self.reset()
         self.init_msg_block(input)
 
+        self.print_mblock()
+        quit()
+
         self.init_msg_schedule()
         self.process_W()
         self.compress()
@@ -473,6 +476,7 @@ class BTCMiner:
 
         while not success:
             hdr = self.get_hdr()
+            print(hdr.hex())
             # Naieve
             # self.sha256.hash("12345678123456781234567812345678123456781234567812345678123456781234567812345678".encode("utf-8"))
             self.sha256.hash(hdr)
@@ -546,15 +550,15 @@ class BTCMiner2(BTCMiner):
 
         
 
-miner = BTCMiner2()
+miner = BTCMiner()
 miner.set_ver(1)
 miner.set_prev_block("0000000000000000000000000000000000000000000000000000000000000000")
 miner.set_mrkl_root("4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b")
 miner.set_time(1231006505)
 miner.set_bits(486604799)
 
-# miner.set_nonce(2083236893) # On the mark
-miner.set_nonce(0)
+miner.set_nonce(2083236893) # On the mark
+#miner.set_nonce(0)
 
 hash = miner.mine()
 print("=== DONE ===")
