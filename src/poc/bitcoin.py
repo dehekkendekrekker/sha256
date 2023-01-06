@@ -372,6 +372,10 @@ class SHA256_opt2(SHA256):
         self.init_msg_schedule()
         self.process_W()
         self.compress()
+
+        self.print_h_values()
+
+        quit()
         self.backup_H()
         self.backup_M()
         pass
@@ -550,7 +554,7 @@ class BTCMiner2(BTCMiner):
 
         
 
-miner = BTCMiner()
+miner = BTCMiner2()
 miner.set_ver(1)
 miner.set_prev_block("0000000000000000000000000000000000000000000000000000000000000000")
 miner.set_mrkl_root("4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b")
