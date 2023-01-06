@@ -16,6 +16,14 @@ initial begin
   Q2 = 0;
 end
 
+always @(posedge CLR1) begin
+    Q1 = 0;
+end
+
+always @(posedge CLR2) begin
+    Q1 = 0;
+end
+
 always @(negedge CLK1) begin
     if (CLR1)
         Q1 <= 0;

@@ -1,20 +1,21 @@
 module MOD_W_WND_COMP_TB;
 `INIT
 
-MOD_W_WND_COMP mut(CLK, RESET, EN, I, W_IN, K_IN, 
-H[0],H[1],H[2],H[3],H[4],H[5],H[6],H[7],
-a,b,c,d,e,f,g,h
-);
+MOD_W_WND_COMP mut(CLK, CMD, MKA, MD, KD, HA, HD_IN, HD_OUT, RDY);
 
-reg CLK, EN, RESET;
-reg [5:0] I;
-reg [31:0] K_IN, W_IN;
+reg CLK;
+reg [7:0] CMD;
+wire [7:0] MKA, HA;
+reg [31:0] MD, KD, HD_IN;
+wire [31:0] HD_OUT;
+wire RDY;
+
 
 reg [31:0] K [64];
 reg [31:0] W [64];
-reg [31:0] H [8];
-reg [31:0] E [8];
-reg [31:0] a,b,c,d,e,f,g,h;
+reg [31:0] H [24];
+reg [31:0] E_REG [8];
+reg [31:0] EH [8];
 
 
 localparam period = 20;  
@@ -25,13 +26,14 @@ initial begin
     $dumpvars(0, MOD_W_WND_COMP_TB);
     $timeformat(-6, 0, " us", 20);
 
-    #20000
+    #10000
     `FAILED("TIMEOUT");
     $finish();
 end
 
 // Setup H-bins
 initial begin
+    // The are pre-defined values that are always present.
     H[0] = 32'h6a09e667;
     H[1] = 32'hbb67ae85;
     H[2] = 32'h3c6ef372;
@@ -40,6 +42,25 @@ initial begin
     H[5] = 32'h9b05688c;
     H[6] = 32'h1f83d9ab;
     H[7] = 32'h5be0cd19;
+    // This is where the SHA256 hash of the first round is stored.
+    // This will be used to reload and setup the second round.
+    H[8] = 0;
+    H[9] = 0;
+    H[10] = 0;
+    H[11] = 0;
+    H[12] = 0;
+    H[13] = 0;
+    H[14] = 0;
+    H[15] = 0;
+    // This is where the SHA256 of a complete operation is stored, ie the final SHA256 hash
+    H[16] = 0;
+    H[17] = 0;
+    H[18] = 0;
+    H[19] = 0;
+    H[20] = 0;
+    H[21] = 0;
+    H[22] = 0;
+    H[23] = 0;
 end
 
 // Setup W-memory
@@ -186,14 +207,14 @@ end
 
 // Setup expectations
 initial begin
-E[0] = 32'b00100111010011111111000101111000;
-E[1] = 32'b01010110101110100001111110010011;
-E[2] = 32'b10011110000111000000001101001111;
-E[3] = 32'b01011101111010111011100111110011;
-E[4] = 32'b00010011101110101111011001000011;
-E[5] = 32'b11011101001101111010010001001000;
-E[6] = 32'b10111110111110010001100000000001;
-E[7] = 32'b00110011110000101100010101110001;
+E_REG[0] = 32'b00100111010011111111000101111000;
+E_REG[1] = 32'b01010110101110100001111110010011;
+E_REG[2] = 32'b10011110000111000000001101001111;
+E_REG[3] = 32'b01011101111010111011100111110011;
+E_REG[4] = 32'b00010011101110101111011001000011;
+E_REG[5] = 32'b11011101001101111010010001001000;
+E_REG[6] = 32'b10111110111110010001100000000001;
+E_REG[7] = 32'b00110011110000101100010101110001;
 end
 
 
@@ -205,86 +226,123 @@ always begin
     if (CLK) clk_count++;
 end
 
-
-
-assign K_IN = K[I];
-assign W_IN = W[I];
-
+// Initial conditions
 initial begin
-    RESET = 0;
     CLK = 0;
-    // I = 0;
-    EN = 0;
+    CMD = mut.CMD_IDLE;
 end
 
-// always @(negedge CLK) begin
-//     if (RESET)
-//         RESET <= 0;
-    
-// end
-
-reg enabled;
-initial enabled = 0;
+// Assignments
+assign HD_IN = H[HA];
+assign MD = W[MKA];
+assign KD = K[MKA];
 
 
 // test state
 reg [7:0] test_state;
 localparam ST_IDLE = 0;
-localparam ST_RESET = 10;
-localparam ST_VERIFY_RESET = 20;
-localparam ST_ENABLE_COMPRESSION = 25;
-localparam ST_COMPRESS = 30;
-
+localparam ST_LOAD_H = 10;
+localparam ST_VERIFY_LOAD_H = 20;
+localparam ST_HASH = 30;
+localparam ST_VERIFY_HASH = 40;
+localparam ST_SUM_STORE = 50;
+localparam ST_SUM_STORE_VERIFY = 60;
+localparam ST_FINISH = 100;
 initial test_state = ST_IDLE;
 
  
 // Counter behaviour
 always @(negedge CLK) begin
     case (test_state)
-    ST_IDLE: test_state <= ST_RESET;
-    ST_RESET: begin
-        RESET <= 1;
-        test_state <= ST_VERIFY_RESET;
+    ST_IDLE: test_state <= ST_LOAD_H;
+    ST_LOAD_H: begin
+        test_state <= ST_VERIFY_LOAD_H;
+        CMD <= mut.CMD_LOAD_H;
     end
-    ST_VERIFY_RESET: begin
-        RESET <= 0;
-        
-        test_state <= ST_ENABLE_COMPRESSION;
+    
+    ST_HASH: begin
+        CMD <= mut.CMD_HASH;
+        test_state <= ST_VERIFY_HASH;
     end
-    ST_ENABLE_COMPRESSION: begin
-        test_state <= ST_COMPRESS;
-        I = 0;
-    end
-    ST_COMPRESS: begin
-        I = I + 1;
-        if (I==63) begin
-            if (a !== E[0]) `FAILED_EXP(0, a, E[0]);
-            if (b !== E[1]) `FAILED_EXP(1, b, E[1]);
-            if (c !== E[2]) `FAILED_EXP(2, c, E[2]);
-            if (d !== E[3]) `FAILED_EXP(3, d, E[3]);
-            if (e !== E[4]) `FAILED_EXP(4, e, E[4]);
-            if (f !== E[5]) `FAILED_EXP(5, f, E[5]);
-            if (g !== E[6]) `FAILED_EXP(6, g, E[6]);
-            if (h !== E[7]) `FAILED_EXP(7, h, E[7]);
 
-            $display("CLK count: %1d", clk_count);
-            $finish();
-        end
-        
-        
+    ST_SUM_STORE: begin
+        CMD <= mut.CMD_SUM_STORE;
+        test_state <= ST_SUM_STORE_VERIFY;
     end
+
+    
+
+    ST_FINISH: begin
+        $display("CLK count: %1d", clk_count);
+        $finish();
+    end
+    
 
     endcase
+
+
 end
 
-always @(posedge CLK) 
+always @(posedge RDY) begin
     case(test_state)
-    ST_COMPRESS: begin
-        EN = 1;
+    ST_VERIFY_LOAD_H: begin
+        CMD <= mut.CMD_IDLE;
+        test_state <= ST_HASH;
+
+        `INFO("=== Verifying register values after loading H values ===");
+        if (mut.a !== H[0]) `FAILED_EXP(0, mut.a, H[0]);
+        if (mut.b !== H[1]) `FAILED_EXP(1, mut.b, H[1]);
+        if (mut.c !== H[2]) `FAILED_EXP(2, mut.c, H[2]);
+        if (mut.d !== H[3]) `FAILED_EXP(3, mut.d, H[3]);
+        if (mut.e !== H[4]) `FAILED_EXP(4, mut.e, H[4]);
+        if (mut.f !== H[5]) `FAILED_EXP(5, mut.f, H[5]);
+        if (mut.g !== H[6]) `FAILED_EXP(6, mut.g, H[6]);
+        if (mut.h !== H[7]) `FAILED_EXP(7, mut.h, H[7]);
     end
+
+    ST_VERIFY_HASH: begin
+        CMD <= mut.CMD_IDLE;
+        test_state <= ST_SUM_STORE;
+
+        `INFO("=== Verifying register values after hash operation ===");
+        if (mut.a !== E_REG[0]) `FAILED_EXP(0, mut.a, E_REG[0]);
+        if (mut.b !== E_REG[1]) `FAILED_EXP(1, mut.b, E_REG[1]);
+        if (mut.c !== E_REG[2]) `FAILED_EXP(2, mut.c, E_REG[2]);
+        if (mut.d !== E_REG[3]) `FAILED_EXP(3, mut.d, E_REG[3]);
+        if (mut.e !== E_REG[4]) `FAILED_EXP(4, mut.e, E_REG[4]);
+        if (mut.f !== E_REG[5]) `FAILED_EXP(5, mut.f, E_REG[5]);
+        if (mut.g !== E_REG[6]) `FAILED_EXP(6, mut.g, E_REG[6]);
+        if (mut.h !== E_REG[7]) `FAILED_EXP(7, mut.h, E_REG[7]);
+    end
+
+    ST_SUM_STORE_VERIFY: begin
+        CMD <= mut.CMD_IDLE;
+        test_state <= ST_FINISH;
+
+        `INFO("=== Verifying H values after summing and storing ===");
+        for (integer i=0; i<8;i++)
+            if (H[i+8] != EH[i])
+                `FAILED_EXP(i, H[i+8], EH[i]);
+        
+
+    end
+
+
     endcase
 
+    
 
+end
+
+
+always @(negedge CLK) begin
+    case(test_state) 
+    // Simulates storing the hash
+    ST_SUM_STORE_VERIFY: begin
+        H[HA+8] = HD_OUT;
+    end
+    endcase
+end
 
 
 
