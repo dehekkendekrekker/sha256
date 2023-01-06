@@ -213,7 +213,7 @@ assign W_IN = W[I];
 initial begin
     RESET = 0;
     CLK = 0;
-    
+    // I = 0;
     EN = 0;
 end
 
@@ -252,12 +252,11 @@ always @(negedge CLK) begin
         test_state <= ST_ENABLE_COMPRESSION;
     end
     ST_ENABLE_COMPRESSION: begin
-        I = 0;
-        EN = 1;
         test_state <= ST_COMPRESS;
+        I = 0;
     end
     ST_COMPRESS: begin
-        
+        I = I + 1;
         if (I==63) begin
             if (a !== E[0]) `FAILED_EXP(0, a, E[0]);
             if (b !== E[1]) `FAILED_EXP(1, b, E[1]);
@@ -271,7 +270,8 @@ always @(negedge CLK) begin
             $display("CLK count: %1d", clk_count);
             $finish();
         end
-        I = I + 1;
+        
+        
     end
 
     endcase
@@ -296,6 +296,13 @@ always @(negedge CLK) begin
     // if (enabled) I = I + 1;
     
 end
+
+always @(posedge CLK) 
+    case(test_state)
+    ST_COMPRESS: begin
+        EN = 1;
+    end
+    endcase
 
 
 
