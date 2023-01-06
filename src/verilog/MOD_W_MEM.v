@@ -23,13 +23,11 @@ For the time being, E is placed in W[i] until we figure out how to integrate the
 
 `ifndef MOD_W_MEM
 `define MOD_W_MEM
-module MOD_W_MEM(CLK, I, D_IN, D_OUT);
+module MOD_W_MEM(I, D_IN, D_OUT);
 
-input            CLK;
 input      [5:0] I ; // W Mem index
 input      [31:0] D_IN; // Data bus IN
 output reg [31:0] D_OUT; // Data OUT
-
 
 MOD_S0 sigma0 (w1, s0);
 MOD_S1 sigma1 (w14, s1);
@@ -37,30 +35,28 @@ MOD_S1 sigma1 (w14, s1);
 reg [31:0] w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15;
 reg [31:0] s0,s1;
 
-always @(CLK) begin
-    if (!CLK) begin
-        if (I < 16)
-            D_OUT = D_IN;
-        else 
-            D_OUT = w0 + s0 + w9 + s1;
-        
-        w15 <= D_OUT;
-        w14 <= w15;
-        w13 <= w14;
-        w12 <= w13;
-        w11 <= w12;
-        w10 <= w11;
-        w9 <= w10;
-        w8 <= w9;
-        w7 <= w8;
-        w6 <= w7;
-        w5 <= w6;
-        w4 <= w5;
-        w3 <= w4;
-        w2 <= w3;
-        w1 <= w2;
-        w0 <= w1;
-    end
+always @(I) begin
+    if (I < 16)
+        D_OUT = D_IN;
+    else 
+        D_OUT = w0 + s0 + w9 + s1;
+    
+    w15 <= D_OUT;
+    w14 <= w15;
+    w13 <= w14;
+    w12 <= w13;
+    w11 <= w12;
+    w10 <= w11;
+    w9 <= w10;
+    w8 <= w9;
+    w7 <= w8;
+    w6 <= w7;
+    w5 <= w6;
+    w4 <= w5;
+    w3 <= w4;
+    w2 <= w3;
+    w1 <= w2;
+    w0 <= w1;
 end
 
 

@@ -1,12 +1,12 @@
 module MOD_COMPRESSOR_TB;
 `INIT
 
-MOD_COMPRESSOR mut(CLK, RESET, I, W_IN, K_IN, 
+MOD_COMPRESSOR mut(CLK, RESET, EN, I, W_IN, K_IN, 
 H[0],H[1],H[2],H[3],H[4],H[5],H[6],H[7],
 a,b,c,d,e,f,g,h
 );
 
-reg CLK, COMPLETE, RESET;
+reg CLK, EN, RESET;
 reg [5:0] I;
 reg [31:0] K_IN, W_IN;
 
@@ -211,10 +211,10 @@ assign K_IN = K[I];
 assign W_IN = W[I];
 
 initial begin
-    RESET = 1;
-    COMPLETE = 0;
+    RESET = 0;
     CLK = 0;
-    I = 0;
+    
+    EN = 0;
 end
 
 // always @(negedge CLK) begin
@@ -226,25 +226,74 @@ end
 reg enabled;
 initial enabled = 0;
 
+
+// test state
+reg [7:0] test_state;
+localparam ST_IDLE = 0;
+localparam ST_RESET = 10;
+localparam ST_VERIFY_RESET = 20;
+localparam ST_ENABLE_COMPRESSION = 25;
+localparam ST_COMPRESS = 30;
+
+initial test_state = ST_IDLE;
+
+ 
 // Counter behaviour
-always @(posedge CLK, negedge CLK) begin
-    if (!enabled) enabled <= 1;
-    if (RESET) RESET <= 0;
-    if (I==63) begin
-        if (a !== E[0]) `FAILED_EXP(0, a, E[0]);
-        if (b !== E[1]) `FAILED_EXP(1, b, E[1]);
-        if (c !== E[2]) `FAILED_EXP(2, c, E[2]);
-        if (d !== E[3]) `FAILED_EXP(3, d, E[3]);
-        if (e !== E[4]) `FAILED_EXP(4, e, E[4]);
-        if (f !== E[5]) `FAILED_EXP(5, f, E[5]);
-        if (g !== E[6]) `FAILED_EXP(6, g, E[6]);
-        if (h !== E[7]) `FAILED_EXP(7, h, E[7]);
-
-        $display("CLK count: %1d", clk_count);
-
-        $finish();
+always @(negedge CLK) begin
+    case (test_state)
+    ST_IDLE: test_state <= ST_RESET;
+    ST_RESET: begin
+        RESET <= 1;
+        test_state <= ST_VERIFY_RESET;
     end
-    if (enabled) I = I + 1;
+    ST_VERIFY_RESET: begin
+        RESET <= 0;
+        
+        test_state <= ST_ENABLE_COMPRESSION;
+    end
+    ST_ENABLE_COMPRESSION: begin
+        I = 0;
+        EN = 1;
+        test_state <= ST_COMPRESS;
+    end
+    ST_COMPRESS: begin
+        
+        if (I==63) begin
+            if (a !== E[0]) `FAILED_EXP(0, a, E[0]);
+            if (b !== E[1]) `FAILED_EXP(1, b, E[1]);
+            if (c !== E[2]) `FAILED_EXP(2, c, E[2]);
+            if (d !== E[3]) `FAILED_EXP(3, d, E[3]);
+            if (e !== E[4]) `FAILED_EXP(4, e, E[4]);
+            if (f !== E[5]) `FAILED_EXP(5, f, E[5]);
+            if (g !== E[6]) `FAILED_EXP(6, g, E[6]);
+            if (h !== E[7]) `FAILED_EXP(7, h, E[7]);
+
+            $display("CLK count: %1d", clk_count);
+            $finish();
+        end
+        I = I + 1;
+    end
+
+    endcase
+
+
+    // if (!enabled) enabled <= 1;
+    // if (RESET) RESET <= 0;
+    // if (I==63) begin
+    //     if (a !== E[0]) `FAILED_EXP(0, a, E[0]);
+    //     if (b !== E[1]) `FAILED_EXP(1, b, E[1]);
+    //     if (c !== E[2]) `FAILED_EXP(2, c, E[2]);
+    //     if (d !== E[3]) `FAILED_EXP(3, d, E[3]);
+    //     if (e !== E[4]) `FAILED_EXP(4, e, E[4]);
+    //     if (f !== E[5]) `FAILED_EXP(5, f, E[5]);
+    //     if (g !== E[6]) `FAILED_EXP(6, g, E[6]);
+    //     if (h !== E[7]) `FAILED_EXP(7, h, E[7]);
+
+    //     $display("CLK count: %1d", clk_count);
+
+    //     $finish();
+    // end
+    // if (enabled) I = I + 1;
     
 end
 

@@ -6,18 +6,18 @@
 
 `ifndef MOD_COMPRESSOR
 `define MOD_COMPRESSOR
-module MOD_COMPRESSOR(CLK, RESET, I, W_IN, K, 
+module MOD_COMPRESSOR(CLK, RESET, EN,I, W_IN, K, 
 H0_IN,H1_IN,H2_IN,H3_IN,H4_IN,H5_IN,H6_IN,H7_IN,
 a,b,c,d,e,f,g,h
 );
 
-input CLK, RESET;
+input CLK, RESET, EN;
 input [5:0] I;
 input [31:0] K, W_IN;
 input [31:0] H0_IN,H1_IN,H2_IN,H3_IN,H4_IN,H5_IN,H6_IN,H7_IN;
 output reg [31:0] a,b,c,d,e,f,g,h;
 
-MOD_W_MEM w_mem(CLK, I, W_IN, W_OUT);
+MOD_W_MEM w_mem(CLK, EN, I, W_IN, W_OUT, RDY);
 MOD_SIGMA0 SIGMA0(a, s0);
 MOD_SIGMA1 SIGMA1(e, s1);
 MOD_CHOICE choice(e,f,g,ch);
@@ -27,24 +27,33 @@ reg [31:0] W_OUT;
 
 reg [31:0] t1,t2;
 reg [31:0] s0, s1, ch, maj;
+wire RDY;
 
 // Assignment of temp regs
 assign t1 = h + s1 + ch + K + W_OUT;
 assign t2 = s0 + maj;
 
-// Continuous assignment blocks
-always @(posedge CLK, negedge CLK) begin
-    if (RESET) begin
-        a = H0_IN;
-        b = H1_IN;
-        c = H2_IN;
-        d = H3_IN;
-        e = H4_IN;
-        f = H5_IN;
-        g = H6_IN;
-        h = H7_IN;
-    end 
+always @(posedge RESET) begin
+    a = H0_IN;
+    b = H1_IN;
+    c = H2_IN;
+    d = H3_IN;
+    e = H4_IN;
+    f = H5_IN;
+    g = H6_IN;
+    h = H7_IN;
+end
 
+// Continuous assignment blocks
+always @(CLK) begin
+    if (!CLK && EN) begin
+        
+    end
+end
+
+// Shift registers
+always @(posedge RDY) begin
+    $display(W_OUT);
     h <= g;
     g <= f;
     f <= e;
@@ -54,6 +63,7 @@ always @(posedge CLK, negedge CLK) begin
     b <= a;
     a <= t1 + t2;
 end
+
 
 
 

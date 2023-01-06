@@ -1,12 +1,13 @@
 module MOD_W_MEM_TB;
 `INIT
 
-MOD_W_MEM mut(CLK, I, D_IN, D_OUT);
+MOD_W_MEM mut(I, D_IN, D_OUT);
 
-reg CLK, COMPLETE;
+reg CLK;
 reg [5:0] I;
 reg [31:0] D_IN;
 wire [31:0] D_OUT;
+
 
 localparam period = 50;  
 
@@ -22,6 +23,7 @@ initial begin
     $timeformat(-6, 0, "us", 50);
 
     #20000
+    `FAILED("TIMEOUT");
     $finish();
 end
 
@@ -177,32 +179,49 @@ end
 
 
 initial begin
-    I = 0;
+    // I = 0;
     CLK = 0;
 end
 
+assign en_clk = CLK && test_state == ST_ENABLED;
 
 assign D_IN = W[I];
-reg enabled;
 
-
-initial enabled = 0;
+reg [7:0] test_state;
+reg [7:0] ctr;
+localparam ST_DISABLED = 0;
+localparam ST_ENABLED = 1;
+initial test_state = ST_DISABLED;
+initial ctr = 0;
 
 
 // Counter behaviour
 always @(negedge CLK) begin
-    if (!enabled) enabled <= 1;
 
-    if(D_OUT !== E[I])
-        `FAILED_EXP(I, D_OUT, E[I])
+        case (test_state)
+        ST_DISABLED: begin
+            if (ctr == 4) begin
+                I <= 0;
+                test_state <= ST_ENABLED;
+            end else
+                ctr ++;
+        end
 
-    if (I == 63) begin
-        $display("CLK count: %1d", clk_count);
-        $finish();
-    end
+        ST_ENABLED: begin
+            if(D_OUT !== E[I])
+                `FAILED_EXP(I, D_OUT, E[I])
+        
+            if (I == 63) begin
+                $display("CLK count: %1d", clk_count);
+                $finish();
+            end
+            I <= I + 1;
+        end
 
-    if (enabled) I = I + 1;
+        endcase
 end
+
+
 
 
 endmodule
