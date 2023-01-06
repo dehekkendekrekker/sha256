@@ -215,7 +215,7 @@ initial begin
 end
 
 // Assignments
-assign HD_IN = H[HA];
+assign HD_IN = test_state == ST_VERIFY_LOAD_H2 ? H[HA+8] : H[HA];
 assign MD = M[MKA % 16];
 assign KD = K[MKA];
 
@@ -223,12 +223,14 @@ assign KD = K[MKA];
 // test state
 reg [7:0] test_state;
 localparam ST_IDLE = 0;
-localparam ST_LOAD_H = 10;
-localparam ST_VERIFY_LOAD_H = 20;
+localparam ST_LOAD_H1 = 10;
+localparam ST_VERIFY_LOAD_H1 = 20;
 localparam ST_HASH = 30;
 localparam ST_VERIFY_HASH = 40;
 localparam ST_SUM_STORE = 50;
 localparam ST_SUM_STORE_VERIFY = 60;
+localparam ST_LOAD_H2 = 70;
+localparam ST_VERIFY_LOAD_H2 = 80;
 localparam ST_FINISH = 100;
 initial test_state = ST_IDLE;
 
@@ -236,9 +238,9 @@ initial test_state = ST_IDLE;
 // Counter behaviour
 always @(negedge CLK) begin
     case (test_state)
-    ST_IDLE: test_state <= ST_LOAD_H;
-    ST_LOAD_H: begin
-        test_state <= ST_VERIFY_LOAD_H;
+    ST_IDLE: test_state <= ST_LOAD_H1;
+    ST_LOAD_H1: begin
+        test_state <= ST_VERIFY_LOAD_H1;
         CMD <= mut.CMD_LOAD_H;
     end
     
@@ -252,7 +254,11 @@ always @(negedge CLK) begin
         test_state <= ST_SUM_STORE_VERIFY;
     end
 
-    
+    ST_LOAD_H2: begin
+        CMD <= mut.CMD_LOAD_H;
+        test_state <= ST_VERIFY_LOAD_H2;
+    end
+
 
     ST_FINISH: begin
         $display("CLK count: %1d", clk_count);
@@ -267,11 +273,11 @@ end
 
 always @(posedge RDY) begin
     case(test_state)
-    ST_VERIFY_LOAD_H: begin
+    ST_VERIFY_LOAD_H1: begin
         CMD <= mut.CMD_IDLE;
         test_state <= ST_HASH;
 
-        `INFO("=== Verifying register values after loading H values ===");
+        `INFO("=== Verifying register values after loading H values (block 1)===");
         if (mut.a !== H[0]) `FAILED_EXP(0, mut.a, H[0]);
         if (mut.b !== H[1]) `FAILED_EXP(1, mut.b, H[1]);
         if (mut.c !== H[2]) `FAILED_EXP(2, mut.c, H[2]);
@@ -299,7 +305,7 @@ always @(posedge RDY) begin
 
     ST_SUM_STORE_VERIFY: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_FINISH;
+        test_state <= ST_LOAD_H2;
 
         `INFO("=== Verifying H values after summing and storing ===");
         for (integer i=0; i<8;i++)
@@ -307,6 +313,20 @@ always @(posedge RDY) begin
                 `FAILED_EXP(i, H[i+8], EH[i]);
         
 
+    end
+
+    ST_VERIFY_LOAD_H2: begin
+        CMD <= mut.CMD_IDLE;
+        test_state <= ST_FINISH;
+        `INFO("=== Verifying register values after loading H values (block 2)===");
+        if (mut.a !== H[8]) `FAILED_EXP(0, mut.a, H[8]);
+        if (mut.b !== H[9]) `FAILED_EXP(1, mut.b, H[9]);
+        if (mut.c !== H[10]) `FAILED_EXP(2, mut.c, H[10]);
+        if (mut.d !== H[11]) `FAILED_EXP(3, mut.d, H[11]);
+        if (mut.e !== H[12]) `FAILED_EXP(4, mut.e, H[12]);
+        if (mut.f !== H[13]) `FAILED_EXP(5, mut.f, H[13]);
+        if (mut.g !== H[14]) `FAILED_EXP(6, mut.g, H[14]);
+        if (mut.h !== H[15]) `FAILED_EXP(7, mut.h, H[15]);
     end
 
 
