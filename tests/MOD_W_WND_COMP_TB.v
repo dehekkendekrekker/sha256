@@ -1,7 +1,7 @@
-module MOD_COMPRESSOR_TB;
+module MOD_W_WND_COMP_TB;
 `INIT
 
-MOD_COMPRESSOR mut(CLK, RESET, EN, I, W_IN, K_IN, 
+MOD_W_WND_COMP mut(CLK, RESET, EN, I, W_IN, K_IN, 
 H[0],H[1],H[2],H[3],H[4],H[5],H[6],H[7],
 a,b,c,d,e,f,g,h
 );
@@ -20,9 +20,9 @@ reg [31:0] a,b,c,d,e,f,g,h;
 localparam period = 20;  
 
 initial begin
-    `SET_MOD("MOD_COMPRESSOR_TB");
-    $dumpfile("./build/MOD_COMPRESSOR_TB.vcd");
-    $dumpvars(0, MOD_COMPRESSOR_TB);
+    `SET_MOD("MOD_W_WND_COMP_TB");
+    $dumpfile("./build/MOD_W_WND_COMP_TB.vcd");
+    $dumpvars(0, MOD_W_WND_COMP_TB);
     $timeformat(-6, 0, " us", 20);
 
     #20000
@@ -275,26 +275,6 @@ always @(negedge CLK) begin
     end
 
     endcase
-
-
-    // if (!enabled) enabled <= 1;
-    // if (RESET) RESET <= 0;
-    // if (I==63) begin
-    //     if (a !== E[0]) `FAILED_EXP(0, a, E[0]);
-    //     if (b !== E[1]) `FAILED_EXP(1, b, E[1]);
-    //     if (c !== E[2]) `FAILED_EXP(2, c, E[2]);
-    //     if (d !== E[3]) `FAILED_EXP(3, d, E[3]);
-    //     if (e !== E[4]) `FAILED_EXP(4, e, E[4]);
-    //     if (f !== E[5]) `FAILED_EXP(5, f, E[5]);
-    //     if (g !== E[6]) `FAILED_EXP(6, g, E[6]);
-    //     if (h !== E[7]) `FAILED_EXP(7, h, E[7]);
-
-    //     $display("CLK count: %1d", clk_count);
-
-    //     $finish();
-    // end
-    // if (enabled) I = I + 1;
-    
 end
 
 always @(posedge CLK) 
@@ -303,10 +283,6 @@ always @(posedge CLK)
         EN = 1;
     end
     endcase
-
-
-
-
 
 
 
