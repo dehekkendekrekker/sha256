@@ -373,9 +373,6 @@ class SHA256_opt2(SHA256):
         self.process_W()
         self.compress()
 
-        self.print_h_values()
-
-        quit()
         self.backup_H()
         self.backup_M()
         pass
@@ -389,6 +386,11 @@ class SHA256_opt2(SHA256):
         self.init_msg_schedule()
         self.process_W()
         self.compress()
+
+        self.print_working_vars()
+        self.print_h_values()
+        quit()
+
 
         # self.print_w_block()
         # self.print_h_values()

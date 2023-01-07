@@ -8,7 +8,7 @@
 
 `ifndef MOD_W_WND_COMP
 `define MOD_W_WND_COMP
-module MOD_W_WND_COMP(CLK, CMD, MKA, MD, KD, HA, HD_IN, HD_OUT, RDY);
+module MOD_W_WND_COMP(CLK, CMD, MKA, MD_IN, MD_OUT, KD, HA, HD_IN, HD_OUT, RDY);
 
 input             CLK;
 input      [7:0]  CMD; // The command given to the module
@@ -16,7 +16,9 @@ input      [7:0]  CMD; // The command given to the module
 output reg [7:0]  MKA; // Message block & K-constants address bus
 output reg [7:0]  HA; // H-values address bus
 
-input      [31:0] MD; // Message block data bus
+input      [31:0] MD_IN; // Message block data bus (IN)
+output reg [31:0] MD_OUT; // Message block data bus (OUT)
+
 input      [31:0] KD; // K-consts data bus
 input      [31:0] HD_IN; // H-values data bus
 
@@ -63,14 +65,17 @@ assign t2 = S0 + maj;
 localparam CMD_IDLE = 0;
 localparam CMD_LOAD_H = 10;
 localparam CMD_HASH = 20;
-localparam CMD_SUM_STORE = 30;
+localparam CMD_SUM_STORE_H = 30;
+localparam CMD_SUM_STORE_M = 40;
 
 // FSM setup
 reg [7:0] state;
 localparam ST_IDLE = 0;
 localparam ST_LOAD_H = 10;
 localparam ST_HASH = 20;
-localparam ST_SUM_STORE = 30;
+localparam ST_SUM_STORE_H = 30;
+localparam ST_SUM_STORE_M = 40;
+
 initial state = ST_IDLE;
 
 // Initial setup
@@ -83,18 +88,36 @@ end
 always @(CMD) begin
     case(CMD)
     CMD_IDLE: state <= ST_IDLE;
+
+    // Loads the H values on the H_IN bus into the registers
     CMD_LOAD_H: begin
         H_CTR_RST <= 0; 
         state <= ST_LOAD_H;
     end
+
+    // Calculates one round of SHA256 of one block M.
     CMD_HASH: begin
         M_CTR_RST <= 0;
         state <= ST_HASH;
     end
-    CMD_SUM_STORE: begin
+
+    // Calculates the SUM of the registers a..h + H_IN. 
+    // Then the output is put on H_OUT.
+    // This is used after hashing the first block, such that 
+    // the calculated Hash can be retrieved and used as intial values
+    // when calculating the second block when the nonce changes
+    CMD_SUM_STORE_H: begin
         H_CTR_RST <= 0; // Activate H-counter
-        state <= ST_SUM_STORE;
+        state <= ST_SUM_STORE_H;
     end
+
+    // Performed on second block. Result it put on M_OUT, so it can 
+    // be stored into the message block buffer
+    CMD_SUM_STORE_M: begin
+        H_CTR_RST <= 0;
+        state <= ST_SUM_STORE_M;
+    end
+
     endcase
 end
 
@@ -126,7 +149,7 @@ always @(negedge CLK) begin
 
     ST_HASH: begin
         if (MKA < 16)
-            W = MD;
+            W = MD_IN;
         else 
             W = w0 + s0 + w9 + s1;
 
@@ -174,7 +197,7 @@ end
 
 always @(posedge CLK) begin
     case(state)
-    ST_SUM_STORE: begin
+    ST_SUM_STORE_H: begin
         case (HA)
         0: HD_OUT <= HD_IN + a;
         1: HD_OUT <= HD_IN + b;
@@ -191,7 +214,28 @@ always @(posedge CLK) begin
         end
         endcase
     end
+
+
+    ST_SUM_STORE_M: begin
+        case (HA)
+        0: MD_OUT <= HD_IN + a;
+        1: MD_OUT <= HD_IN + b;
+        2: MD_OUT <= HD_IN + c;
+        3: MD_OUT <= HD_IN + d;
+        4: MD_OUT <= HD_IN + e;
+        5: MD_OUT <= HD_IN + f;
+        6: MD_OUT <= HD_IN + g;
+        7: MD_OUT <= HD_IN + h;
+        8: begin
+            H_CTR_RST <= 1;
+            state <= ST_IDLE;
+            RDY <= 1;
+        end
+        endcase
+    end
     endcase
+
+
 
 end
 

@@ -1,20 +1,22 @@
 module MOD_W_WND_COMP_TB;
 `INIT
 
-MOD_W_WND_COMP mut(CLK, CMD, MKA, MD, KD, HA, HD_IN, HD_OUT, RDY);
+MOD_W_WND_COMP mut(CLK, CMD, MKA, MD_IN, MD_OUT, KD, HA, HD_IN, HD_OUT, RDY);
 
 reg CLK;
 reg [7:0] CMD;
 wire [7:0] MKA, HA;
-reg [31:0] MD, KD, HD_IN;
-wire [31:0] HD_OUT;
+reg [31:0] MD_IN, KD, HD_IN;
+wire [31:0] HD_OUT, MD_OUT;
 wire RDY;
 
 
 reg [31:0] K [64];
 reg [31:0] H [24];
-reg [31:0] E_REG [8];
-reg [31:0] EH [8];
+reg [31:0] E_REG1 [8];
+reg [31:0] E_REG2 [8];
+reg [31:0] EH1 [8];
+reg [31:0] EM [8];
 
 
 localparam period = 20;  
@@ -68,8 +70,9 @@ end
 
 // Block header:
 // 0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f49ffff001d1dac2b7c
-reg [31:0] M [32]; // 1024 bit message block
+reg [31:0] M [48]; // 1024 bit message block
 initial begin
+    // Static block
     M[0] = 32'b00000001000000000000000000000000;
     M[1] = 32'b00000000000000000000000000000000;
     M[2] = 32'b00000000000000000000000000000000;
@@ -86,6 +89,8 @@ initial begin
     M[13] = 32'b01111111110010000001101111000011;
     M[14] = 32'b10001000100010100101000100110010;
     M[15] = 32'b00111010100111111011100010101010;
+
+    // Dynamic block
     M[16] = 32'b01001011000111100101111001001010;
     M[17] = 32'b00101001101010110101111101001001;
     M[18] = 32'b11111111111111110000000000011101;
@@ -100,8 +105,26 @@ initial begin
     M[27] = 32'b00000000000000000000000000000000;
     M[28] = 32'b00000000000000000000000000000000;
     M[29] = 32'b00000000000000000000000000000000;
-    M[31] = 32'b00000000000000000000000000000000;
-    M[32] = 32'b00000000000000000000001010000000;
+    M[30] = 32'b00000000000000000000000000000000;
+    M[31] = 32'b00000000000000000000001010000000;
+
+    // Hash block. The results of the first round of SHA256 will be put here
+    M[32] = 32'b00000000000000000000000000000000;
+    M[33] = 32'b00000000000000000000000000000000;
+    M[34] = 32'b00000000000000000000000000000000;
+    M[35] = 32'b00000000000000000000000000000000;
+    M[36] = 32'b00000000000000000000000000000000;
+    M[37] = 32'b00000000000000000000000000000000;
+    M[38] = 32'b00000000000000000000000000000000;
+    M[39] = 32'b00000000000000000000000000000000;
+    M[40] = 32'b10000000000000000000000000000000; // Terminator bit
+    M[41] = 32'b00000000000000000000000000000000;
+    M[42] = 32'b00000000000000000000000000000000;
+    M[43] = 32'b00000000000000000000000000000000;
+    M[44] = 32'b00000000000000000000000000000000;
+    M[45] = 32'b00000000000000000000000000000000;
+    M[46] = 32'b00000000000000000000000000000000;
+    M[47] = 32'b00000000000000000000000100000000; // 256 bits
 end
 
 
@@ -178,26 +201,52 @@ end
 initial begin
 
 // Expectations for the registers (a,b,..) after hashing the first block
-E_REG[0] = 32'h5286b3cc;
-E_REG[1] = 32'ha7f1116b;
-E_REG[2] = 32'h545db90b;
-E_REG[3] = 32'h7909d56e;
-E_REG[4] = 32'h72ba866a;
-E_REG[5] = 32'hb3fb9b3c;
-E_REG[6] = 32'h772dad8b;
-E_REG[7] = 32'heb392c02;
+E_REG1[0] = 32'h5286b3cc;
+E_REG1[1] = 32'ha7f1116b;
+E_REG1[2] = 32'h545db90b;
+E_REG1[3] = 32'h7909d56e;
+E_REG1[4] = 32'h72ba866a;
+E_REG1[5] = 32'hb3fb9b3c;
+E_REG1[6] = 32'h772dad8b;
+E_REG1[7] = 32'heb392c02;
+end
+
+initial begin
+
+// Expectations for the registers (a,b,..) after hashing the first block
+E_REG2[0] = 32'hf2b168eb;
+E_REG2[1] = 32'h1d0734a3;
+E_REG2[2] = 32'h0fa69565;
+E_REG2[3] = 32'hd8f62ad9;
+E_REG2[4] = 32'h860951d0;
+E_REG2[5] = 32'h6b18f24b;
+E_REG2[6] = 32'had314136;
+E_REG2[7] = 32'h2aabdd52;
+end
+
+
+// Expectations for the hash values after hashing the first block
+initial begin
+EH1[0] = 32'hbc909a33;
+EH1[1] = 32'h6358bff0;
+EH1[2] = 32'h90ccac7d;
+EH1[3] = 32'h1e59caa8;
+EH1[4] = 32'hc3c8d8e9;
+EH1[5] = 32'h4f0103c8;
+EH1[6] = 32'h96b18736;
+EH1[7] = 32'h4719f91b;
 end
 
 // Expectations for the hash values after hashing the first block
 initial begin
-EH[0] = 32'hbc909a33;
-EH[1] = 32'h6358bff0;
-EH[2] = 32'h90ccac7d;
-EH[3] = 32'h1e59caa8;
-EH[4] = 32'hc3c8d8e9;
-EH[5] = 32'h4f0103c8;
-EH[6] = 32'h96b18736;
-EH[7] = 32'h4719f91b;
+EM[0] = 32'haf42031e;
+EM[1] = 32'h805ff493;
+EM[2] = 32'ha07341e2;
+EM[3] = 32'hf74ff581;
+EM[4] = 32'h49d22ab9;
+EM[5] = 32'hba19f613;
+EM[6] = 32'h43e2c86c;
+EM[7] = 32'h71c5d66d;
 end
 
 // Setup clock signal
@@ -214,9 +263,16 @@ initial begin
     CMD = mut.CMD_IDLE;
 end
 
+
+
+
 // Assignments
-assign HD_IN = test_state == ST_VERIFY_LOAD_H2 ? H[HA+8] : H[HA];
-assign MD = M[MKA % 16];
+
+assign HD_IN = (test_state == ST_VERIFY_LOAD_H2)    ? H[HA+8] :
+               (test_state == ST_SUM_STORE2_VERIFY) ? H[HA+8] : 
+                                                      H[HA];         
+
+assign MD_IN = test_state == ST_VERIFY_HASH2 ? M[(MKA % 16) + 16]: M[MKA % 16];
 assign KD = K[MKA];
 
 
@@ -225,13 +281,17 @@ reg [7:0] test_state;
 localparam ST_IDLE = 0;
 localparam ST_LOAD_H1 = 10;
 localparam ST_VERIFY_LOAD_H1 = 20;
-localparam ST_HASH = 30;
-localparam ST_VERIFY_HASH = 40;
-localparam ST_SUM_STORE = 50;
-localparam ST_SUM_STORE_VERIFY = 60;
+localparam ST_HASH1 = 30;
+localparam ST_VERIFY_HASH1 = 40;
+localparam ST_SUM_STORE1 = 50;
+localparam ST_SUM_STORE1_VERIFY = 60;
 localparam ST_LOAD_H2 = 70;
 localparam ST_VERIFY_LOAD_H2 = 80;
-localparam ST_FINISH = 100;
+localparam ST_HASH2 = 90;
+localparam ST_VERIFY_HASH2 = 95;
+localparam ST_SUM_STORE2 = 100;
+localparam ST_SUM_STORE2_VERIFY = 110;
+localparam ST_FINISH = 200;
 initial test_state = ST_IDLE;
 
  
@@ -244,19 +304,29 @@ always @(negedge CLK) begin
         CMD <= mut.CMD_LOAD_H;
     end
     
-    ST_HASH: begin
+    ST_HASH1: begin
         CMD <= mut.CMD_HASH;
-        test_state <= ST_VERIFY_HASH;
+        test_state <= ST_VERIFY_HASH1;
     end
 
-    ST_SUM_STORE: begin
-        CMD <= mut.CMD_SUM_STORE;
-        test_state <= ST_SUM_STORE_VERIFY;
+    ST_SUM_STORE1: begin
+        CMD <= mut.CMD_SUM_STORE_H;
+        test_state <= ST_SUM_STORE1_VERIFY;
     end
 
     ST_LOAD_H2: begin
         CMD <= mut.CMD_LOAD_H;
         test_state <= ST_VERIFY_LOAD_H2;
+    end
+
+    ST_HASH2: begin
+        CMD <= mut.CMD_HASH;
+        test_state <= ST_VERIFY_HASH2;
+    end
+
+    ST_SUM_STORE2: begin
+        CMD <= mut.CMD_SUM_STORE_M;
+        test_state <= ST_SUM_STORE2_VERIFY;
     end
 
 
@@ -275,7 +345,7 @@ always @(posedge RDY) begin
     case(test_state)
     ST_VERIFY_LOAD_H1: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_HASH;
+        test_state <= ST_HASH1;
 
         `INFO("=== Verifying register values after loading H values (block 1)===");
         if (mut.a !== H[0]) `FAILED_EXP(0, mut.a, H[0]);
@@ -288,36 +358,36 @@ always @(posedge RDY) begin
         if (mut.h !== H[7]) `FAILED_EXP(7, mut.h, H[7]);
     end
 
-    ST_VERIFY_HASH: begin
+    ST_VERIFY_HASH1: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_SUM_STORE;
+        test_state <= ST_SUM_STORE1;
 
         `INFO("=== Verifying register values after hash operation ===");
-        if (mut.a !== E_REG[0]) `FAILED_EXP(0, mut.a, E_REG[0]);
-        if (mut.b !== E_REG[1]) `FAILED_EXP(1, mut.b, E_REG[1]);
-        if (mut.c !== E_REG[2]) `FAILED_EXP(2, mut.c, E_REG[2]);
-        if (mut.d !== E_REG[3]) `FAILED_EXP(3, mut.d, E_REG[3]);
-        if (mut.e !== E_REG[4]) `FAILED_EXP(4, mut.e, E_REG[4]);
-        if (mut.f !== E_REG[5]) `FAILED_EXP(5, mut.f, E_REG[5]);
-        if (mut.g !== E_REG[6]) `FAILED_EXP(6, mut.g, E_REG[6]);
-        if (mut.h !== E_REG[7]) `FAILED_EXP(7, mut.h, E_REG[7]);
+        if (mut.a !== E_REG1[0]) `FAILED_EXP(0, mut.a, E_REG1[0]);
+        if (mut.b !== E_REG1[1]) `FAILED_EXP(1, mut.b, E_REG1[1]);
+        if (mut.c !== E_REG1[2]) `FAILED_EXP(2, mut.c, E_REG1[2]);
+        if (mut.d !== E_REG1[3]) `FAILED_EXP(3, mut.d, E_REG1[3]);
+        if (mut.e !== E_REG1[4]) `FAILED_EXP(4, mut.e, E_REG1[4]);
+        if (mut.f !== E_REG1[5]) `FAILED_EXP(5, mut.f, E_REG1[5]);
+        if (mut.g !== E_REG1[6]) `FAILED_EXP(6, mut.g, E_REG1[6]);
+        if (mut.h !== E_REG1[7]) `FAILED_EXP(7, mut.h, E_REG1[7]);
     end
 
-    ST_SUM_STORE_VERIFY: begin
+    ST_SUM_STORE1_VERIFY: begin
         CMD <= mut.CMD_IDLE;
         test_state <= ST_LOAD_H2;
 
-        `INFO("=== Verifying H values after summing and storing ===");
+        `INFO("=== Verifying H values after summing and storing (Block 1)===");
         for (integer i=0; i<8;i++)
-            if (H[i+8] !== EH[i])
-                `FAILED_EXP(i, H[i+8], EH[i]);
+            if (H[i+8] !== EH1[i])
+                `FAILED_EXP(i, H[i+8], EH1[i]);
         
 
     end
 
     ST_VERIFY_LOAD_H2: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_FINISH;
+        test_state <= ST_HASH2;
         `INFO("=== Verifying register values after loading H values (block 2)===");
         if (mut.a !== H[8]) `FAILED_EXP(0, mut.a, H[8]);
         if (mut.b !== H[9]) `FAILED_EXP(1, mut.b, H[9]);
@@ -327,6 +397,31 @@ always @(posedge RDY) begin
         if (mut.f !== H[13]) `FAILED_EXP(5, mut.f, H[13]);
         if (mut.g !== H[14]) `FAILED_EXP(6, mut.g, H[14]);
         if (mut.h !== H[15]) `FAILED_EXP(7, mut.h, H[15]);
+    end
+
+    ST_VERIFY_HASH2: begin
+        CMD <= mut.CMD_IDLE;
+        test_state <= ST_SUM_STORE2;
+
+        `INFO("=== Verifying register values after hash operation (block 2)===");
+        if (mut.a !== E_REG2[0]) `FAILED_EXP(0, mut.a, E_REG2[0]);
+        if (mut.b !== E_REG2[1]) `FAILED_EXP(1, mut.b, E_REG2[1]);
+        if (mut.c !== E_REG2[2]) `FAILED_EXP(2, mut.c, E_REG2[2]);
+        if (mut.d !== E_REG2[3]) `FAILED_EXP(3, mut.d, E_REG2[3]);
+        if (mut.e !== E_REG2[4]) `FAILED_EXP(4, mut.e, E_REG2[4]);
+        if (mut.f !== E_REG2[5]) `FAILED_EXP(5, mut.f, E_REG2[5]);
+        if (mut.g !== E_REG2[6]) `FAILED_EXP(6, mut.g, E_REG2[6]);
+        if (mut.h !== E_REG2[7]) `FAILED_EXP(7, mut.h, E_REG2[7]);
+    end
+
+    ST_SUM_STORE2_VERIFY: begin
+        CMD <= mut.CMD_IDLE;
+        test_state <= ST_FINISH;
+
+        `INFO("=== Verifying H values after summing and storing (Block 2)===");
+        for (integer i=0; i<8;i++)
+            if (M[i+32] !== EM[i])
+                `FAILED_EXP(i, M[i+32], EM[i]);
     end
 
 
@@ -340,8 +435,11 @@ end
 always @(negedge CLK) begin
     case(test_state) 
     // Simulates storing the hash
-    ST_SUM_STORE_VERIFY: begin
+    ST_SUM_STORE1_VERIFY: begin
         H[HA+8] = HD_OUT;
+    end
+    ST_SUM_STORE2_VERIFY: begin
+        M[HA+32] = MD_OUT;
     end
     endcase
 end
