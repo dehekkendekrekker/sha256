@@ -216,9 +216,6 @@ class SHA256_naieve(SHA256):
         self.reset()
         self.init_msg_block(input)
 
-        self.print_mblock()
-        quit()
-
         self.init_msg_schedule()
         self.process_W()
         self.compress()
@@ -396,9 +393,6 @@ class SHA256_opt2(SHA256):
         self.process_W()
         self.compress()
 
-        self.print_working_vars()
-        self.print_h_values()
-
         
         
         
@@ -534,15 +528,11 @@ class BTCMiner2(BTCMiner):
             self.sha256.hash_digest()
 
             hash = bytearray(self.sha256.get_bytes_digest())
-            # hash.reverse()
+            hash.reverse()
 
 
-            print("BLK2:")
-            print(self.get_block_2().hex())
-
-            
             self.hashes += 1
-            return hash
+            
 
             if (hash <= self.target):
                     success = True
@@ -569,38 +559,10 @@ miner.set_mrkl_root("4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afde
 miner.set_time(1231006505)
 miner.set_bits(486604799)
 
-miner.set_nonce(2083236894) # On the mark
-#miner.set_nonce(0)
+# target nonce: 2083236893
+miner.set_nonce(2083230893) 
+
 
 hash = miner.mine()
 print("=== DONE ===")
 print(hash.hex())
-
-# Should yield this hash
-# 000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
-
-
-# 4b1e5e4a 29ab5f49 ffff001d 1dac2b7c
-# 4b1e5e4a 29ab5f49 ffff001d 1eac2b7c
-    
-
-
-
-# sha256 = SHA256()
-
-
-# # Mock block header input
-# input = "12345678123456781234567812345678123456781234567812345678123456781234567812345678".encode('utf-8')
-
-
-# hash = sha256.hash(input)
-# print(hash)
-
-# Expected 
-# a9a1bb77 2b44d320 262d9acc f044c9d3 508a83fb e4d52d6b 4e974055 970c81d5
-
-#  echo -n "12345678123456781234567812345678123456781234567812345678123456781234567812345678" | sha256sum | cut -d' ' -f1 | xxd -r -p | sha256sum
-# 6e5a17f692f993a6b19a33fe299bca70fafc449822e31b5b2460423556d48167
-
-
-# echo -n "AAAABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCDDDDEEEEFFFF" | sha256sum | cut -d' ' -f1 | xxd -r -p | sha256sum
