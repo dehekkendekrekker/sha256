@@ -72,6 +72,9 @@ end
 
 // Block header:
 // 0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f49ffff001d1dac2b7c
+
+// 0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f49ffff001d1eac2b7c
+//                                                                                                                                 4b1e5e4a29ab5f49ffff001d1eac2b7c
 reg [31:0] M [48]; // 1024 bit message block
 initial begin
     // Static block
@@ -97,6 +100,7 @@ initial begin
     M[17] = 32'b00101001101010110101111101001001;
     M[18] = 32'b11111111111111110000000000011101;
     M[19] = 32'b00011101101011000010101101111100;
+               
     M[20] = 32'b10000000000000000000000000000000;
     M[21] = 32'b00000000000000000000000000000000;
     M[22] = 32'b00000000000000000000000000000000;
@@ -265,9 +269,10 @@ EM1[7] = 32'h71c5d66d;
 end
 
 // Expectations for the hash after the second SHA256 round
-reg [255:0] ERES;
+reg [255:0] ERES [2];
 initial begin
-    ERES = 256'h6fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d6190000000000;
+    ERES[0] = 256'h6fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d6190000000000;
+    ERES[1] = 256'h1c1ba4714930063bebadce0a323e51d097775dbc444187e6ba0caa5d4a7a229b;
 end
 
 
@@ -361,6 +366,7 @@ always @(negedge CLK) begin
     // Now try for another round
 
     ST_INC_NONCE: begin
+        M[19] = 32'b00011110101011000010101101111100;
         test_state <= ST2_LOAD_STATIC_BLOCK_HASH_FROM_H;
     end
 
@@ -502,11 +508,11 @@ always @(posedge RDY) begin
 
     ST1_GET_DIGEST: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST2_LOAD_STATIC_BLOCK_HASH_FROM_H;
+        test_state <= ST_INC_NONCE;
 
         `INFO("=== Verifying digest 1st SHA256D round ===");
-        if (RES != ERES)
-            `FAILED_EXP(0, RES, ERES);
+        if (RES != ERES[0])
+            `FAILED_EXP(0, RES, ERES[0]);
     end
 
     ST2_LOAD_STATIC_BLOCK_HASH_FROM_H: test_state <= ST2_HASH_DYN_BLOCK;
@@ -516,8 +522,8 @@ always @(posedge RDY) begin
     ST2_HASH_ROUND1_HASH:              test_state <= ST2_GET_DIGEST;
     ST2_GET_DIGEST: begin
         `INFO("=== Verifying digest 2nd SHA256D round ===");
-        if (RES != ERES)
-            `FAILED_EXP(0, RES, ERES);
+        if (RES != ERES[1])
+            `FAILED_EXP(0, RES, ERES[1]);
         test_state <= ST_FINISH;
     end
 

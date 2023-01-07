@@ -534,9 +534,15 @@ class BTCMiner2(BTCMiner):
             self.sha256.hash_digest()
 
             hash = bytearray(self.sha256.get_bytes_digest())
-            hash.reverse()
+            # hash.reverse()
 
+
+            print("BLK2:")
+            print(self.get_block_2().hex())
+
+            
             self.hashes += 1
+            return hash
 
             if (hash <= self.target):
                     success = True
@@ -563,7 +569,7 @@ miner.set_mrkl_root("4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afde
 miner.set_time(1231006505)
 miner.set_bits(486604799)
 
-miner.set_nonce(2083236893) # On the mark
+miner.set_nonce(2083236894) # On the mark
 #miner.set_nonce(0)
 
 hash = miner.mine()
@@ -574,7 +580,8 @@ print(hash.hex())
 # 000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
 
 
-
+# 4b1e5e4a 29ab5f49 ffff001d 1dac2b7c
+# 4b1e5e4a 29ab5f49 ffff001d 1eac2b7c
     
 
 
