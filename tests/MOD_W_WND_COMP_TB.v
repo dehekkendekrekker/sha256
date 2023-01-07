@@ -268,11 +268,10 @@ end
 
 // Assignments
 
-assign HD_IN = (test_state == ST_VERIFY_LOAD_H2)    ? H[HA+8] :
-               (test_state == ST_SUM_STORE2_VERIFY) ? H[HA+8] : 
-                                                      H[HA];         
+assign HD_IN = (test_state == ST_LOAD_H2)    ? H[HA+8] :
+               (test_state == ST_SUM_STORE2) ? H[HA+8] : H[HA];         
 
-assign MD_IN = test_state == ST_VERIFY_HASH2 ? M[(MKA % 16) + 16]: M[MKA % 16];
+assign MD_IN = test_state == ST_HASH2 ? M[(MKA % 16) + 16]: M[MKA % 16];
 assign KD = K[MKA];
 
 
@@ -280,17 +279,11 @@ assign KD = K[MKA];
 reg [7:0] test_state;
 localparam ST_IDLE = 0;
 localparam ST_LOAD_H1 = 10;
-localparam ST_VERIFY_LOAD_H1 = 20;
 localparam ST_HASH1 = 30;
-localparam ST_VERIFY_HASH1 = 40;
 localparam ST_SUM_STORE1 = 50;
-localparam ST_SUM_STORE1_VERIFY = 60;
 localparam ST_LOAD_H2 = 70;
-localparam ST_VERIFY_LOAD_H2 = 80;
 localparam ST_HASH2 = 90;
-localparam ST_VERIFY_HASH2 = 95;
 localparam ST_SUM_STORE2 = 100;
-localparam ST_SUM_STORE2_VERIFY = 110;
 localparam ST_FINISH = 200;
 initial test_state = ST_IDLE;
 
@@ -300,33 +293,27 @@ always @(negedge CLK) begin
     case (test_state)
     ST_IDLE: test_state <= ST_LOAD_H1;
     ST_LOAD_H1: begin
-        test_state <= ST_VERIFY_LOAD_H1;
         CMD <= mut.CMD_LOAD_H;
     end
     
     ST_HASH1: begin
         CMD <= mut.CMD_HASH;
-        test_state <= ST_VERIFY_HASH1;
     end
 
     ST_SUM_STORE1: begin
         CMD <= mut.CMD_SUM_STORE_H;
-        test_state <= ST_SUM_STORE1_VERIFY;
     end
 
     ST_LOAD_H2: begin
         CMD <= mut.CMD_LOAD_H;
-        test_state <= ST_VERIFY_LOAD_H2;
     end
 
     ST_HASH2: begin
         CMD <= mut.CMD_HASH;
-        test_state <= ST_VERIFY_HASH2;
     end
 
     ST_SUM_STORE2: begin
         CMD <= mut.CMD_SUM_STORE_M;
-        test_state <= ST_SUM_STORE2_VERIFY;
     end
 
 
@@ -343,7 +330,7 @@ end
 
 always @(posedge RDY) begin
     case(test_state)
-    ST_VERIFY_LOAD_H1: begin
+    ST_LOAD_H1: begin
         CMD <= mut.CMD_IDLE;
         test_state <= ST_HASH1;
 
@@ -358,7 +345,7 @@ always @(posedge RDY) begin
         if (mut.h !== H[7]) `FAILED_EXP(7, mut.h, H[7]);
     end
 
-    ST_VERIFY_HASH1: begin
+    ST_HASH1: begin
         CMD <= mut.CMD_IDLE;
         test_state <= ST_SUM_STORE1;
 
@@ -373,7 +360,7 @@ always @(posedge RDY) begin
         if (mut.h !== E_REG1[7]) `FAILED_EXP(7, mut.h, E_REG1[7]);
     end
 
-    ST_SUM_STORE1_VERIFY: begin
+    ST_SUM_STORE1: begin
         CMD <= mut.CMD_IDLE;
         test_state <= ST_LOAD_H2;
 
@@ -385,7 +372,7 @@ always @(posedge RDY) begin
 
     end
 
-    ST_VERIFY_LOAD_H2: begin
+    ST_LOAD_H2: begin
         CMD <= mut.CMD_IDLE;
         test_state <= ST_HASH2;
         `INFO("=== Verifying register values after loading H values (block 2)===");
@@ -399,7 +386,7 @@ always @(posedge RDY) begin
         if (mut.h !== H[15]) `FAILED_EXP(7, mut.h, H[15]);
     end
 
-    ST_VERIFY_HASH2: begin
+    ST_HASH2: begin
         CMD <= mut.CMD_IDLE;
         test_state <= ST_SUM_STORE2;
 
@@ -414,7 +401,7 @@ always @(posedge RDY) begin
         if (mut.h !== E_REG2[7]) `FAILED_EXP(7, mut.h, E_REG2[7]);
     end
 
-    ST_SUM_STORE2_VERIFY: begin
+    ST_SUM_STORE2: begin
         CMD <= mut.CMD_IDLE;
         test_state <= ST_FINISH;
 
@@ -435,10 +422,10 @@ end
 always @(negedge CLK) begin
     case(test_state) 
     // Simulates storing the hash
-    ST_SUM_STORE1_VERIFY: begin
+    ST_SUM_STORE1: begin
         H[HA+8] = HD_OUT;
     end
-    ST_SUM_STORE2_VERIFY: begin
+    ST_SUM_STORE2: begin
         M[HA+32] = MD_OUT;
     end
     endcase
