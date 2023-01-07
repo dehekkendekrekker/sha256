@@ -8,7 +8,7 @@
 
 `ifndef MOD_W_WND_COMP
 `define MOD_W_WND_COMP
-module MOD_W_WND_COMP(CLK, CMD, MKA, MD_IN, MD_OUT, KD, HA, HD_IN, HD_OUT, RDY);
+module MOD_W_WND_COMP(CLK, CMD, MKA, MD_IN, MD_OUT, KD, HA, HD_IN, HD_OUT, RES, RDY);
 
 input             CLK;
 input      [7:0]  CMD; // The command given to the module
@@ -23,6 +23,8 @@ input      [31:0] KD; // K-consts data bus
 input      [31:0] HD_IN; // H-values data bus
 
 output reg [31:0] HD_OUT; // Hash values that are sent out to be stored
+
+output reg [255:0] RES; // The final hash value
 
 output reg        RDY; // Pulled low when ready
 
@@ -67,6 +69,7 @@ localparam CMD_LOAD_H = 10;
 localparam CMD_HASH = 20;
 localparam CMD_SUM_STORE_H = 30;
 localparam CMD_SUM_STORE_M = 40;
+localparam CMD_CALC_RES = 50;
 
 // FSM setup
 reg [7:0] state;
@@ -75,6 +78,7 @@ localparam ST_LOAD_H = 10;
 localparam ST_HASH = 20;
 localparam ST_SUM_STORE_H = 30;
 localparam ST_SUM_STORE_M = 40;
+localparam ST_CALC_RES = 50;
 
 initial state = ST_IDLE;
 
@@ -116,6 +120,11 @@ always @(CMD) begin
     CMD_SUM_STORE_M: begin
         H_CTR_RST <= 0;
         state <= ST_SUM_STORE_M;
+    end
+
+    CMD_CALC_RES: begin
+        H_CTR_RST <= 0;
+        state <= ST_CALC_RES;
     end
 
     endcase
@@ -233,6 +242,26 @@ always @(posedge CLK) begin
         end
         endcase
     end
+    
+
+    ST_CALC_RES: begin
+        case (HA)
+        0: RES[255:224] <= HD_IN + a;
+        1: RES[223:192] <= HD_IN + b;
+        2: RES[191:160] <= HD_IN + c;
+        3: RES[159:128] <= HD_IN + d;
+        4: RES[127:96]  <= HD_IN + e;
+        5: RES[95:64]   <= HD_IN + f;
+        6: RES[63:32]   <= HD_IN + g;
+        7: RES[31:0]    <= HD_IN + h;
+        8: begin
+            H_CTR_RST <= 1;
+            state <= ST_IDLE;
+            RDY <= 1;
+        end
+        endcase
+    end
+
     endcase
 
 

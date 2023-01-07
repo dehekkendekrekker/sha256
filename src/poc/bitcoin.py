@@ -387,14 +387,6 @@ class SHA256_opt2(SHA256):
         self.process_W()
         self.compress()
 
-        self.print_working_vars()
-        self.print_h_values()
-        quit()
-
-
-        # self.print_w_block()
-        # self.print_h_values()
-
     def hash_digest(self):
         digest = self.get_bytes_digest()
 
@@ -403,6 +395,13 @@ class SHA256_opt2(SHA256):
         self.init_msg_schedule()
         self.process_W()
         self.compress()
+
+        self.print_working_vars()
+        self.print_h_values()
+
+        
+        
+        
 
 
         
@@ -536,6 +535,7 @@ class BTCMiner2(BTCMiner):
 
             hash = bytearray(self.sha256.get_bytes_digest())
             hash.reverse()
+
             self.hashes += 1
 
             if (hash <= self.target):

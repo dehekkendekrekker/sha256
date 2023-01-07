@@ -1,13 +1,14 @@
 module MOD_W_WND_COMP_TB;
 `INIT
 
-MOD_W_WND_COMP mut(CLK, CMD, MKA, MD_IN, MD_OUT, KD, HA, HD_IN, HD_OUT, RDY);
+MOD_W_WND_COMP mut(CLK, CMD, MKA, MD_IN, MD_OUT, KD, HA, HD_IN, HD_OUT, RES, RDY);
 
 reg CLK;
 reg [7:0] CMD;
 wire [7:0] MKA, HA;
 reg [31:0] MD_IN, KD, HD_IN;
 wire [31:0] HD_OUT, MD_OUT;
+wire [255:0] RES;
 wire RDY;
 
 
@@ -15,8 +16,9 @@ reg [31:0] K [64];
 reg [31:0] H [24];
 reg [31:0] E_REG1 [8];
 reg [31:0] E_REG2 [8];
+reg [31:0] E_REG3 [8];
 reg [31:0] EH1 [8];
-reg [31:0] EM [8];
+reg [31:0] EM1 [8];
 
 
 localparam period = 20;  
@@ -213,7 +215,7 @@ end
 
 initial begin
 
-// Expectations for the registers (a,b,..) after hashing the first block
+// Expectations for the registers (a,b,..) after hashing the second block
 E_REG2[0] = 32'hf2b168eb;
 E_REG2[1] = 32'h1d0734a3;
 E_REG2[2] = 32'h0fa69565;
@@ -222,8 +224,21 @@ E_REG2[4] = 32'h860951d0;
 E_REG2[5] = 32'h6b18f24b;
 E_REG2[6] = 32'had314136;
 E_REG2[7] = 32'h2aabdd52;
+
 end
 
+initial begin
+// Expectations for the registers (a,b,..) after hashing the second round of SHA256 (hashing the hash)
+
+E_REG3[0] = 32'h5d8a5a3;
+E_REG3[1] = 32'hfb8a04ed;
+E_REG3[2] = 32'h8537aed4;
+E_REG3[3] = 32'h09140215;
+E_REG3[4] = 32'h421030e6;
+E_REG3[5] = 32'h4654a010;
+E_REG3[6] = 32'h49523f55;
+E_REG3[7] = 32'ha41f32e7;
+end
 
 // Expectations for the hash values after hashing the first block
 initial begin
@@ -237,17 +252,25 @@ EH1[6] = 32'h96b18736;
 EH1[7] = 32'h4719f91b;
 end
 
-// Expectations for the hash values after hashing the first block
+// Expectations for the hash values after hashing the first SHA256 round
 initial begin
-EM[0] = 32'haf42031e;
-EM[1] = 32'h805ff493;
-EM[2] = 32'ha07341e2;
-EM[3] = 32'hf74ff581;
-EM[4] = 32'h49d22ab9;
-EM[5] = 32'hba19f613;
-EM[6] = 32'h43e2c86c;
-EM[7] = 32'h71c5d66d;
+EM1[0] = 32'haf42031e;
+EM1[1] = 32'h805ff493;
+EM1[2] = 32'ha07341e2;
+EM1[3] = 32'hf74ff581;
+EM1[4] = 32'h49d22ab9;
+EM1[5] = 32'hba19f613;
+EM1[6] = 32'h43e2c86c;
+EM1[7] = 32'h71c5d66d;
 end
+
+// Expectations for the hash after the second SHA256 round
+reg [255:0] ERES;
+initial begin
+    ERES = 256'h6fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d6190000000000;
+end
+
+
 
 // Setup clock signal
 reg [15:0] clk_count;
@@ -271,7 +294,8 @@ end
 assign HD_IN = (test_state == ST_LOAD_H2)    ? H[HA+8] :
                (test_state == ST_SUM_STORE2) ? H[HA+8] : H[HA];         
 
-assign MD_IN = test_state == ST_HASH2 ? M[(MKA % 16) + 16]: M[MKA % 16];
+assign MD_IN = (test_state == ST_HASH2) ? M[(MKA % 16) + 16] : 
+               (test_state == ST_HASH3) ? M[(MKA % 16) + 32] : M[MKA % 16];
 assign KD = K[MKA];
 
 
@@ -284,6 +308,8 @@ localparam ST_SUM_STORE1 = 50;
 localparam ST_LOAD_H2 = 70;
 localparam ST_HASH2 = 90;
 localparam ST_SUM_STORE2 = 100;
+localparam ST_LOAD_H3 = 110;
+localparam ST_HASH3 = 120;
 localparam ST_FINISH = 200;
 initial test_state = ST_IDLE;
 
@@ -292,29 +318,24 @@ initial test_state = ST_IDLE;
 always @(negedge CLK) begin
     case (test_state)
     ST_IDLE: test_state <= ST_LOAD_H1;
-    ST_LOAD_H1: begin
-        CMD <= mut.CMD_LOAD_H;
-    end
+
+    ST_LOAD_H1: CMD <= mut.CMD_LOAD_H;
     
-    ST_HASH1: begin
-        CMD <= mut.CMD_HASH;
-    end
+    ST_HASH1: CMD <= mut.CMD_HASH;
+    
+    ST_SUM_STORE1: CMD <= mut.CMD_SUM_STORE_H;
 
-    ST_SUM_STORE1: begin
-        CMD <= mut.CMD_SUM_STORE_H;
-    end
+    ST_LOAD_H2: CMD <= mut.CMD_LOAD_H;
 
-    ST_LOAD_H2: begin
-        CMD <= mut.CMD_LOAD_H;
-    end
+    ST_HASH2: CMD <= mut.CMD_HASH;
 
-    ST_HASH2: begin
-        CMD <= mut.CMD_HASH;
-    end
+    ST_SUM_STORE2: CMD <= mut.CMD_SUM_STORE_M;
 
-    ST_SUM_STORE2: begin
-        CMD <= mut.CMD_SUM_STORE_M;
-    end
+    ST_LOAD_H3: CMD <= mut.CMD_LOAD_H;
+
+    ST_HASH3: CMD <= mut.CMD_HASH;
+    
+
 
 
     ST_FINISH: begin
@@ -403,17 +424,45 @@ always @(posedge RDY) begin
 
     ST_SUM_STORE2: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_FINISH;
+        test_state <= ST_LOAD_H3;
 
         `INFO("=== Verifying H values after summing and storing (Block 2)===");
         for (integer i=0; i<8;i++)
-            if (M[i+32] !== EM[i])
-                `FAILED_EXP(i, M[i+32], EM[i]);
+            if (M[i+32] !== EM1[i])
+                `FAILED_EXP(i, M[i+32], EM1[i]);
     end
 
+    ST_LOAD_H3: begin
+        CMD <= mut.CMD_IDLE;
+        test_state <= ST_HASH3;
+
+         `INFO("=== Verifying register values after loading H values (block 3)===");
+        if (mut.a !== H[0]) `FAILED_EXP(0, mut.a, H[0]);
+        if (mut.b !== H[1]) `FAILED_EXP(1, mut.b, H[1]);
+        if (mut.c !== H[2]) `FAILED_EXP(2, mut.c, H[2]);
+        if (mut.d !== H[3]) `FAILED_EXP(3, mut.d, H[3]);
+        if (mut.e !== H[4]) `FAILED_EXP(4, mut.e, H[4]);
+        if (mut.f !== H[5]) `FAILED_EXP(5, mut.f, H[5]);
+        if (mut.g !== H[6]) `FAILED_EXP(6, mut.g, H[6]);
+        if (mut.h !== H[7]) `FAILED_EXP(7, mut.h, H[7]);
+    end
+
+    ST_HASH3: begin
+        CMD <= mut.CMD_IDLE;
+        test_state <= ST_FINISH;
+
+        `INFO("=== Verifying register values after hash operation (block 3) ===");
+        if (mut.a !== E_REG3[0]) `FAILED_EXP(0, mut.a, E_REG3[0]);
+        if (mut.b !== E_REG3[1]) `FAILED_EXP(1, mut.b, E_REG3[1]);
+        if (mut.c !== E_REG3[2]) `FAILED_EXP(2, mut.c, E_REG3[2]);
+        if (mut.d !== E_REG3[3]) `FAILED_EXP(3, mut.d, E_REG3[3]);
+        if (mut.e !== E_REG3[4]) `FAILED_EXP(4, mut.e, E_REG3[4]);
+        if (mut.f !== E_REG3[5]) `FAILED_EXP(5, mut.f, E_REG3[5]);
+        if (mut.g !== E_REG3[6]) `FAILED_EXP(6, mut.g, E_REG3[6]);
+        if (mut.h !== E_REG3[7]) `FAILED_EXP(7, mut.h, E_REG3[7]);
+    end
 
     endcase
-
     
 
 end
