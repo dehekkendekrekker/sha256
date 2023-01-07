@@ -69,7 +69,7 @@ localparam CMD_LOAD_H = 10;
 localparam CMD_HASH = 20;
 localparam CMD_SUM_STORE_H = 30;
 localparam CMD_SUM_STORE_M = 40;
-localparam CMD_CALC_RES = 50;
+localparam CMD_GET_DIGEST = 50;
 
 // FSM setup
 reg [7:0] state;
@@ -78,7 +78,7 @@ localparam ST_LOAD_H = 10;
 localparam ST_HASH = 20;
 localparam ST_SUM_STORE_H = 30;
 localparam ST_SUM_STORE_M = 40;
-localparam ST_CALC_RES = 50;
+localparam ST_GET_DIGEST = 50;
 
 initial state = ST_IDLE;
 
@@ -122,9 +122,9 @@ always @(CMD) begin
         state <= ST_SUM_STORE_M;
     end
 
-    CMD_CALC_RES: begin
+    CMD_GET_DIGEST: begin
         H_CTR_RST <= 0;
-        state <= ST_CALC_RES;
+        state <= ST_GET_DIGEST;
     end
 
     endcase
@@ -244,7 +244,7 @@ always @(posedge CLK) begin
     end
     
 
-    ST_CALC_RES: begin
+    ST_GET_DIGEST: begin
         case (HA)
         0: RES[255:224] <= HD_IN + a;
         1: RES[223:192] <= HD_IN + b;

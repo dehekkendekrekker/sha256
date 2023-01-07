@@ -29,7 +29,7 @@ initial begin
     $dumpvars(0, MOD_W_WND_COMP_TB);
     $timeformat(-6, 0, " us", 20);
 
-    #10000
+    #12000
     `FAILED("TIMEOUT");
     $finish();
 end
@@ -310,6 +310,8 @@ localparam ST_HASH2 = 90;
 localparam ST_SUM_STORE2 = 100;
 localparam ST_LOAD_H3 = 110;
 localparam ST_HASH3 = 120;
+localparam ST_GET_DIGEST = 130;
+
 localparam ST_FINISH = 200;
 initial test_state = ST_IDLE;
 
@@ -334,6 +336,8 @@ always @(negedge CLK) begin
     ST_LOAD_H3: CMD <= mut.CMD_LOAD_H;
 
     ST_HASH3: CMD <= mut.CMD_HASH;
+
+    ST_GET_DIGEST: CMD <= mut.CMD_GET_DIGEST;
     
 
 
@@ -449,7 +453,7 @@ always @(posedge RDY) begin
 
     ST_HASH3: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_FINISH;
+        test_state <= ST_GET_DIGEST;
 
         `INFO("=== Verifying register values after hash operation (block 3) ===");
         if (mut.a !== E_REG3[0]) `FAILED_EXP(0, mut.a, E_REG3[0]);
@@ -460,6 +464,15 @@ always @(posedge RDY) begin
         if (mut.f !== E_REG3[5]) `FAILED_EXP(5, mut.f, E_REG3[5]);
         if (mut.g !== E_REG3[6]) `FAILED_EXP(6, mut.g, E_REG3[6]);
         if (mut.h !== E_REG3[7]) `FAILED_EXP(7, mut.h, E_REG3[7]);
+    end
+
+    ST_GET_DIGEST: begin
+        CMD <= mut.CMD_IDLE;
+        test_state <= ST_FINISH;
+
+        `INFO("=== Verifying digest ===");
+        if (RES != ERES)
+            `FAILED_EXP(0, RES, ERES);
     end
 
     endcase
