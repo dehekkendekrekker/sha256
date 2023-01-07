@@ -29,7 +29,7 @@ initial begin
     $dumpvars(0, MOD_W_WND_COMP_TB);
     $timeformat(-6, 0, " us", 20);
 
-    #12000
+    #24000
     `FAILED("TIMEOUT");
     $finish();
 end
@@ -291,26 +291,53 @@ end
 
 // Assignments
 
-assign HD_IN = (test_state == ST_LOAD_H2)    ? H[HA+8] :
-               (test_state == ST_SUM_STORE2) ? H[HA+8] : H[HA];         
+assign HD_IN = (test_state == ST1_LOAD_STATIC_BLOCK_HASH_FROM_H) ? H[HA+8] :
+               (test_state == ST2_LOAD_STATIC_BLOCK_HASH_FROM_H) ? H[HA+8] :
+               (test_state == ST1_STORE_ROUND1_HASH_IN_M)        ? H[HA+8] : 
+               (test_state == ST2_STORE_ROUND1_HASH_IN_M)        ? H[HA+8] : H[HA];         
 
-assign MD_IN = (test_state == ST_HASH2) ? M[(MKA % 16) + 16] : 
-               (test_state == ST_HASH3) ? M[(MKA % 16) + 32] : M[MKA % 16];
+assign MD_IN = (test_state == ST1_HASH_DYN_BLOCK) ? M[(MKA % 16) + 16] : 
+               (test_state == ST2_HASH_DYN_BLOCK) ? M[(MKA % 16) + 16] :
+               (test_state == ST1_HASH_ROUND1_HASH) ? M[(MKA % 16) + 32] :
+               (test_state == ST2_HASH_ROUND1_HASH) ? M[(MKA % 16) + 32] : M[MKA % 16];
+
+
 assign KD = K[MKA];
 
 
 // test state
 reg [7:0] test_state;
 localparam ST_IDLE = 0;
-localparam ST_LOAD_H1 = 10;
-localparam ST_HASH1 = 30;
-localparam ST_SUM_STORE1 = 50;
-localparam ST_LOAD_H2 = 70;
-localparam ST_HASH2 = 90;
-localparam ST_SUM_STORE2 = 100;
-localparam ST_LOAD_H3 = 110;
-localparam ST_HASH3 = 120;
-localparam ST_GET_DIGEST = 130;
+
+// First SHA256 round
+localparam ST1_LOAD_DEFAULT_H_R1 = 1;
+localparam ST1_HASH_STATIC_BLOCK = 2;
+localparam ST1_STORE_STATIC_BLOCK_HASH_IN_H = 3;
+localparam ST1_LOAD_STATIC_BLOCK_HASH_FROM_H = 4;
+localparam ST1_HASH_DYN_BLOCK = 5;
+localparam ST1_STORE_ROUND1_HASH_IN_M = 6;
+
+// Second SHA256 round
+localparam ST1_LOAD_DEFAULT_H_R2 = 7;
+localparam ST1_HASH_ROUND1_HASH = 8;
+localparam ST1_GET_DIGEST = 9;
+// sha256d round 1 complete
+
+localparam ST_INC_NONCE = 10;
+
+localparam ST2_LOAD_STATIC_BLOCK_HASH_FROM_H = 20;
+localparam ST2_HASH_DYN_BLOCK = 30;
+localparam ST2_STORE_ROUND1_HASH_IN_M = 40;
+
+// Second SHA256 round
+localparam ST2_LOAD_DEFAULT_H_R2 = 50;
+localparam ST2_HASH_ROUND1_HASH = 60;
+localparam ST2_GET_DIGEST = 70;
+
+// sha256d round 2 complete
+
+
+
 
 localparam ST_FINISH = 200;
 initial test_state = ST_IDLE;
@@ -319,25 +346,32 @@ initial test_state = ST_IDLE;
 // Counter behaviour
 always @(negedge CLK) begin
     case (test_state)
-    ST_IDLE: test_state <= ST_LOAD_H1;
+    ST_IDLE: test_state <= ST1_LOAD_DEFAULT_H_R1;
 
-    ST_LOAD_H1: CMD <= mut.CMD_LOAD_H;
-    
-    ST_HASH1: CMD <= mut.CMD_HASH;
-    
-    ST_SUM_STORE1: CMD <= mut.CMD_SUM_STORE_H;
+    ST1_LOAD_DEFAULT_H_R1:             CMD <= mut.CMD_LOAD_H;
+    ST1_HASH_STATIC_BLOCK:             CMD <= mut.CMD_HASH;
+    ST1_STORE_STATIC_BLOCK_HASH_IN_H:  CMD <= mut.CMD_SUM_STORE_H;
+    ST1_LOAD_STATIC_BLOCK_HASH_FROM_H: CMD <= mut.CMD_LOAD_H;
+    ST1_HASH_DYN_BLOCK:                CMD <= mut.CMD_HASH;
+    ST1_STORE_ROUND1_HASH_IN_M:        CMD <= mut.CMD_SUM_STORE_M;
+    ST1_LOAD_DEFAULT_H_R2:             CMD <= mut.CMD_LOAD_H;
+    ST1_HASH_ROUND1_HASH:              CMD <= mut.CMD_HASH;
+    ST1_GET_DIGEST:                    CMD <= mut.CMD_GET_DIGEST;
 
-    ST_LOAD_H2: CMD <= mut.CMD_LOAD_H;
+    // Now try for another round
 
-    ST_HASH2: CMD <= mut.CMD_HASH;
+    ST_INC_NONCE: begin
+        test_state <= ST2_LOAD_STATIC_BLOCK_HASH_FROM_H;
+    end
 
-    ST_SUM_STORE2: CMD <= mut.CMD_SUM_STORE_M;
+    ST2_LOAD_STATIC_BLOCK_HASH_FROM_H: CMD <= mut.CMD_LOAD_H;
+    ST2_HASH_DYN_BLOCK:                CMD <= mut.CMD_HASH;
+    ST2_STORE_ROUND1_HASH_IN_M:        CMD <= mut.CMD_SUM_STORE_M;
+    ST2_LOAD_DEFAULT_H_R2:             CMD <= mut.CMD_LOAD_H;
+    ST2_HASH_ROUND1_HASH:              CMD <= mut.CMD_HASH;
+    ST2_GET_DIGEST:                    CMD <= mut.CMD_GET_DIGEST;
 
-    ST_LOAD_H3: CMD <= mut.CMD_LOAD_H;
 
-    ST_HASH3: CMD <= mut.CMD_HASH;
-
-    ST_GET_DIGEST: CMD <= mut.CMD_GET_DIGEST;
     
 
 
@@ -355,9 +389,9 @@ end
 
 always @(posedge RDY) begin
     case(test_state)
-    ST_LOAD_H1: begin
+    ST1_LOAD_DEFAULT_H_R1: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_HASH1;
+        test_state <= ST1_HASH_STATIC_BLOCK;
 
         `INFO("=== Verifying register values after loading H values (block 1)===");
         if (mut.a !== H[0]) `FAILED_EXP(0, mut.a, H[0]);
@@ -370,9 +404,9 @@ always @(posedge RDY) begin
         if (mut.h !== H[7]) `FAILED_EXP(7, mut.h, H[7]);
     end
 
-    ST_HASH1: begin
+    ST1_HASH_STATIC_BLOCK: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_SUM_STORE1;
+        test_state <= ST1_STORE_STATIC_BLOCK_HASH_IN_H;
 
         `INFO("=== Verifying register values after hash operation ===");
         if (mut.a !== E_REG1[0]) `FAILED_EXP(0, mut.a, E_REG1[0]);
@@ -385,9 +419,9 @@ always @(posedge RDY) begin
         if (mut.h !== E_REG1[7]) `FAILED_EXP(7, mut.h, E_REG1[7]);
     end
 
-    ST_SUM_STORE1: begin
+    ST1_STORE_STATIC_BLOCK_HASH_IN_H: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_LOAD_H2;
+        test_state <= ST1_LOAD_STATIC_BLOCK_HASH_FROM_H;
 
         `INFO("=== Verifying H values after summing and storing (Block 1)===");
         for (integer i=0; i<8;i++)
@@ -397,9 +431,9 @@ always @(posedge RDY) begin
 
     end
 
-    ST_LOAD_H2: begin
+    ST1_LOAD_STATIC_BLOCK_HASH_FROM_H: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_HASH2;
+        test_state <= ST1_HASH_DYN_BLOCK;
         `INFO("=== Verifying register values after loading H values (block 2)===");
         if (mut.a !== H[8]) `FAILED_EXP(0, mut.a, H[8]);
         if (mut.b !== H[9]) `FAILED_EXP(1, mut.b, H[9]);
@@ -411,9 +445,9 @@ always @(posedge RDY) begin
         if (mut.h !== H[15]) `FAILED_EXP(7, mut.h, H[15]);
     end
 
-    ST_HASH2: begin
+    ST1_HASH_DYN_BLOCK: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_SUM_STORE2;
+        test_state <= ST1_STORE_ROUND1_HASH_IN_M;
 
         `INFO("=== Verifying register values after hash operation (block 2)===");
         if (mut.a !== E_REG2[0]) `FAILED_EXP(0, mut.a, E_REG2[0]);
@@ -426,9 +460,9 @@ always @(posedge RDY) begin
         if (mut.h !== E_REG2[7]) `FAILED_EXP(7, mut.h, E_REG2[7]);
     end
 
-    ST_SUM_STORE2: begin
+    ST1_STORE_ROUND1_HASH_IN_M: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_LOAD_H3;
+        test_state <= ST1_LOAD_DEFAULT_H_R2;
 
         `INFO("=== Verifying H values after summing and storing (Block 2)===");
         for (integer i=0; i<8;i++)
@@ -436,9 +470,9 @@ always @(posedge RDY) begin
                 `FAILED_EXP(i, M[i+32], EM1[i]);
     end
 
-    ST_LOAD_H3: begin
+    ST1_LOAD_DEFAULT_H_R2: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_HASH3;
+        test_state <= ST1_HASH_ROUND1_HASH;
 
          `INFO("=== Verifying register values after loading H values (block 3)===");
         if (mut.a !== H[0]) `FAILED_EXP(0, mut.a, H[0]);
@@ -451,9 +485,9 @@ always @(posedge RDY) begin
         if (mut.h !== H[7]) `FAILED_EXP(7, mut.h, H[7]);
     end
 
-    ST_HASH3: begin
+    ST1_HASH_ROUND1_HASH: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_GET_DIGEST;
+        test_state <= ST1_GET_DIGEST;
 
         `INFO("=== Verifying register values after hash operation (block 3) ===");
         if (mut.a !== E_REG3[0]) `FAILED_EXP(0, mut.a, E_REG3[0]);
@@ -466,14 +500,27 @@ always @(posedge RDY) begin
         if (mut.h !== E_REG3[7]) `FAILED_EXP(7, mut.h, E_REG3[7]);
     end
 
-    ST_GET_DIGEST: begin
+    ST1_GET_DIGEST: begin
         CMD <= mut.CMD_IDLE;
-        test_state <= ST_FINISH;
+        test_state <= ST2_LOAD_STATIC_BLOCK_HASH_FROM_H;
 
-        `INFO("=== Verifying digest ===");
+        `INFO("=== Verifying digest 1st SHA256D round ===");
         if (RES != ERES)
             `FAILED_EXP(0, RES, ERES);
     end
+
+    ST2_LOAD_STATIC_BLOCK_HASH_FROM_H: test_state <= ST2_HASH_DYN_BLOCK;
+    ST2_HASH_DYN_BLOCK:                test_state <= ST2_STORE_ROUND1_HASH_IN_M;
+    ST2_STORE_ROUND1_HASH_IN_M:        test_state <= ST2_LOAD_DEFAULT_H_R2;
+    ST2_LOAD_DEFAULT_H_R2:             test_state <= ST2_HASH_ROUND1_HASH;
+    ST2_HASH_ROUND1_HASH:              test_state <= ST2_GET_DIGEST;
+    ST2_GET_DIGEST: begin
+        `INFO("=== Verifying digest 2nd SHA256D round ===");
+        if (RES != ERES)
+            `FAILED_EXP(0, RES, ERES);
+        test_state <= ST_FINISH;
+    end
+
 
     endcase
     
@@ -484,10 +531,13 @@ end
 always @(negedge CLK) begin
     case(test_state) 
     // Simulates storing the hash
-    ST_SUM_STORE1: begin
+    ST1_STORE_STATIC_BLOCK_HASH_IN_H: begin
         H[HA+8] = HD_OUT;
     end
-    ST_SUM_STORE2: begin
+    ST1_STORE_ROUND1_HASH_IN_M: begin
+        M[HA+32] = MD_OUT;
+    end
+    ST2_STORE_ROUND1_HASH_IN_M: begin
         M[HA+32] = MD_OUT;
     end
     endcase
